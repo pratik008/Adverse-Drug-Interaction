@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/docs/4.1/assets/img/favicons/favicon.ico">
+
+    <title>DrIP : Finding drug interactions before they happen</title>
+     <!-- Bootstrap core CSS -->
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="../static/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="static/css/product.css" rel="stylesheet"/>
+
+    <script type="text/javascript" language="javascript" src="/static/jsme/jsme.nocache.js"></script>
+    
+    <script type="text/javascript">
+
+
+        window.onload = function () {
+
+            var label_0 = "{{label_0}}"
+
+
+            var chart = new CanvasJS.Chart("chartContainer", {
+                theme: "light1", // "light2", "dark1", "dark2"
+                animationEnabled: true, // change to true      
+                title:{
+                    text: "Probability of each interaction type"
+                },
+                data: [
+                    {
+                        type: "bar",
+                        dataPoints: [
+                        { label: "{{top_labels[4]}}", y:{{top_probs[4]}} },
+                        { label: "{{top_labels[3]}}", y:{{top_probs[3]}} },
+                        { label: "{{top_labels[2]}}", y:{{top_probs[2]}} },
+                        { label: "{{top_labels[1]}}", y:{{top_probs[1]}} },
+                        { label: "{{top_labels[0]}}", y:{{top_probs[0]}} }
+                        ]
+                    }
+                ]
+            })
+            
+            chart.render();
+        }
+
+
+    </script>
+
+<title>Predictions</title>
+
+
+</head>
+
+<body>
+
+    <nav class="site-header sticky-top py-1">
+        <div class="container d-flex flex-column flex-md-row justify-content-between">
+            <!--<a class="py-2" href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="d-block mx-auto"><circle cx="12" cy="12" r="10"></circle><line x1="14.31" y1="8" x2="20.05" y2="17.94"></line><line x1="9.69" y1="8" x2="21.17" y2="8"></line><line x1="7.38" y1="12" x2="13.12" y2="2.06"></line><line x1="9.69" y1="16" x2="3.95" y2="6.06"></line><line x1="14.31" y1="16" x2="2.83" y2="16"></line><line x1="16.62" y1="12" x2="10.88" y2="21.94"></line></svg>
+            </a>-->
+            <a class="py-2 d-none d-md-inline-block" href="/">DrIP</a>
+            <a class="py-2 d-none d-md-inline-block" href="/about">About</a>
+            <a class="py-2 d-none d-md-inline-block" href="/help">Help</a>
+            <a class="py-2 d-none d-md-inline-block" href="/credits">Credits</a>
+            <!--<a class="py-2 d-none d-md-inline-block" href="/feedback">Feedback</a>-->
+        </div>
+    </nav>
+
+
+    <br>
+    <h4> Candidate Molecule SMILES : <b> {{smiles}} </b> <br>
+
+        Existing Drug : <b> {{drug_name}} </b></h4>
+	
+    <br><br>
+
+
+    <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="../static/js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../static/js/ie10-viewport-bug-workaround.js"></script>
+
+<script src="../static/js/bootstrap.min.js"></script>
+
+</body>
+</html>
+
