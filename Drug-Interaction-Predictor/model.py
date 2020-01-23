@@ -49,10 +49,11 @@ def svm_train(x_train, y_train):
 
 class my_callback(tf.keras.callbacks.Callback):
     '''Callback class for Keras model'''
-    def on_epoch_end(self, epoch, logs = {}):
-        if logs.get('acc') > 0.99:
-            print("\nReached 100% accuracy. Stopping training...")
-            self.model.stop_training = True
+    #def on_epoch_end(self, epoch, logs = {}):
+        #pass
+        #if logs.get('acc') > 0.99:
+            #print("\nReached 100% accuracy. Stopping training...")
+            #self.model.stop_training = True
 
 def mlp_train(x_train, y_train):
     '''Build and train a multilayer perceptron model
@@ -64,7 +65,7 @@ def mlp_train(x_train, y_train):
     Returns :
         model (object): Returns a Keras neural network fit on the input data
     '''
-    callbacks = my_callback()
+    #callbacks = my_callback()
 
     x_train = np.array(x_train).astype('float')
     print('Data type of train data : ', x_train.dtype)
