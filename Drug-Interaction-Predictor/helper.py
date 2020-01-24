@@ -1,4 +1,5 @@
 from rdkit import Chem
+import streamlit as st
 
 def process_and_tokenize(smiles):
     # handles both preprocessing and tokenizing for any input type
@@ -67,5 +68,11 @@ def preprocess(smiles):
 def tokenize(smiles):
     # tokenizes SMILES string by character
     return ' '.join([i for i in smiles])
+
+
+
+def pad_tokenize_smiles(tokenize_smiles):
+    return tokenize_smiles
+
 
 

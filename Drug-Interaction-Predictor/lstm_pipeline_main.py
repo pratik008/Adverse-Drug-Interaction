@@ -29,22 +29,30 @@ def main():
     # Create the labels from the relation_list
     label_map, label_lookup = generate_labels(relation_list)
 
-    print(label_map)
-    print(label_lookup)
+    # Tokenize smiles and interactions - create labels for training data
+    X_label, y_label = tokenize_smiles_and_interactions(relation_list,smiles_dict,label_map)
 
+    X_arr = np.array(X_label, dtype='float32')
+    y_arr = np.array(y_label, dtype='float32')
 
+    X_arr_small = X_arr[0:5000]
+    y_arr_small = y_arr[0:5000]
 
-    item = 'temp'
-    smiles_tokenzied_dic = {}
-    for item in smiles_dict:
-        smiles, smiles_tokenized = process_and_tokenize(smiles_dict[item])
-        smiles_tokenzied_dic.
+    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)
 
+    # Stratified train test split with k folds
+    for train_index, test_index in skf.split(X_arr_small, y_arr_small):
+        # print("TRAIN:", train_index, "TEST:", test_index)
+        X_train, X_test = X_arr_small[train_index], X_arr_small[test_index]
+        y_train, y_test = y_arr_small[train_index], y_arr_small[test_index]
+        model_rf = rf_train(X_train, y_train)
+        accuracy, precision, recall, f1 = generate_model_report(model_rf, X_test, y_test)
 
-    a, b = process_and_tokenize('CC(=O)O')
-    print(a,b)
+    model = lstm_train(X_train,y_train)
 
-    print(len(b))
+    # Final evaluation of the model
+    scores = model.evaluate(X_test, y_test, verbose=0)
+    print("Accuracy: %.2f%%" % (scores[1] * 100))
 
 
     print("Last Break Point")

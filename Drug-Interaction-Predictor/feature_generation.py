@@ -5,6 +5,8 @@ from rdkit import Chem
 from collections import Counter
 from gensim.models import word2vec
 from mol2vec_utils import *
+from keras.preprocessing.text import Tokenizer
+from keras.preprocessing.sequence import pad_sequences
 
 
 # File to generate numerical features from smiles data and replace
@@ -66,6 +68,52 @@ def smiles_to_mol2vec_vector(smiles, model, fp_radius = 2, uncommon = None):
         return None
 
 
+def tokenize_smiles_and_interactions(relation_list,
+     smiles_dict, label_map):
+    '''Generate numerical vectors (tokens) from smiles data and label interactions.
+
+        The dictionary smiles_dict is used to find the SMILEs representations of
+        drugs found in relation_list. subject and object SMILEs strings are concatenated,
+        Keras tokenizer is used to convert the SMILEs string into tokens, and padding is
+        used to standardize the length. The dictionary label_map is used to convert the interaction
+        keywords in relation_list to numerical labels.
+
+
+        Args :
+            relation_list (list): List of Relation instances
+            smiles_dict (dict): Dictionary mapping drug names to SMILES strings.
+            label_map (dict): Dictionary mapping interaction keywords to
+                numerical labels.
+
+        Returns :
+            X_label: tokenized data for the SMILEs string. (X)
+            y_label: tokenized data for the interactions. (y)
+        '''
+
+    X_concatenate_smile = []
+    y_label = []
+
+    for relation in relation_list:
+        sub, obj, interaction = relation.get()
+        sub_smiles, obj_smiles = smiles_dict[sub], smiles_dict[obj]
+        interaction_label = label_map[interaction]
+        X_concatenate_smile.append(sub_smiles+obj_smiles)
+        y_label.append(interaction_label)
+
+
+    # ==============Tokenizer - Convert string to index================
+    tk = Tokenizer(num_words=None, char_level=True, oov_token='UNK')
+    tk.fit_on_texts(X_concatenate_smile)
+
+    smile_seq = tk.texts_to_sequences(X_concatenate_smile)
+    # If we already have a character list, then replace the tk.word_index
+    # If not, just skip below part
+
+    X_label = pad_sequences(smile_seq, maxlen=1024, padding='post')
+
+    return X_label, y_label
+
+
 def featurize_smiles_and_interactions(relation_list, smiles_feature_generator,
      smiles_dict, label_map):
     '''Generate numerical features from smiles data and label interactions.
@@ -122,6 +170,7 @@ def featurize_smiles_and_interactions(relation_list, smiles_feature_generator,
         
 
     return smiles_feature_list, interaction_label_list, drug_pair_list
+
 
 
 def filter_less_frequent_labels(smiles_feature_list, interaction_label_list,\

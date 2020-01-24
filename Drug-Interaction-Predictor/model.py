@@ -9,6 +9,9 @@ from sklearn.metrics import precision_recall_curve
 import tensorflow as tf
 import numpy as np
 import random
+from keras.models import Sequential
+from keras.layers import Input, Embedding, Activation, Flatten, Dense, LSTM, Bidirectional
+from keras.layers import Conv1D, MaxPooling1D, Dropout
 
 # Contains various models and different metrics
 #
@@ -49,6 +52,8 @@ def svm_train(x_train, y_train):
 
 class my_callback(tf.keras.callbacks.Callback):
     '''Callback class for Keras model'''
+    print("Inside my callback")
+    pass
     #def on_epoch_end(self, epoch, logs = {}):
         #pass
         #if logs.get('acc') > 0.99:
@@ -105,6 +110,42 @@ def mlp_train(x_train, y_train):
     mlp_model.summary()
 
     return mlp_model
+
+def lstm_train(X_train, y_train):
+    '''Build and train a multilayer perceptron model
+
+    Args :
+        x_train (numpy.ndarray): Features for training
+        y_train (numpy.ndarray): Classification labels for training
+
+    Returns :
+        model (object): Returns a Keras neural network fit on the input data
+    '''
+    #callbacks = my_callback()
+
+    print('Data type of train data : ', X_train.dtype)
+    number_of_features = X_train.shape[1]
+    number_of_labels = max(set(y_train))
+    print('Number of features : ', number_of_features)
+    print('Number of classification labels : ', len(set(y_train)))
+    #y_train = np.reshape(y_train, (-1, 1))
+    print('Shape of x_train : ', X_train.shape)
+    print('Shape of y_train', y_train.shape)
+    #print(y_train[:10])
+
+    model = Sequential()
+    model.add(Embedding(50, 16, input_length=1024))
+    model.add(Dropout(0.2))
+    model.add(LSTM(100))
+    model.add(Dropout(0.2))
+    model.add(Dense(50, activation='softmax'))
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    print(model.summary())
+
+    model.fit(X_train, y_train, epochs=3, batch_size=64, validation_split=0.2)
+
+    return model
+
 
 def mlp_mol2vec_train(x_train, y_train):
     '''Build and train a multilayer perceptron model for mol2vec feature vectors

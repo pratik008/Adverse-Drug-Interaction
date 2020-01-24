@@ -2,6 +2,7 @@ import boto3
 import botocore
 import lxml.etree as et
 import xml.etree.ElementTree as ET
+from helper import *
 
 
 # Contains functions to read data from XML file obtained from DrugBank.
@@ -107,6 +108,8 @@ def read_data(tree, number_of_drugs = 50000, addon = '{http://www.drugbank.ca}')
     drug_count = 0
     drug_list = []
     smiles_dict = {}
+    tokenize_smiles_dict = {}
+
     for elem in root:
         structure = ''
         interactions = {}
