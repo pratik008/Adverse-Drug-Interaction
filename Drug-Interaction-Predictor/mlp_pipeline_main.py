@@ -48,8 +48,18 @@ def main():
         #print("TRAIN:", train_index, "TEST:", test_index)
         X_train, X_test = X_arr_small[train_index], X_arr_small[test_index]
         y_train, y_test = y_arr_small[train_index], y_arr_small[test_index]
-        model_rf = rf_train(X_train, y_train)
-        accuracy, precision, recall, f1 = generate_model_report(model_rf, X_test, y_test)
+        #model_rf = rf_train(X_train, y_train)
+        #accuracy, precision, recall, f1 = generate_model_report(model_rf, X_test, y_test)
+
+    model = mlp_train(X_train, y_train)
+    accuracy, precision, recall, f1 = generate_model_report(model, X_test, y_test)
+    print(set(y_train))
+    print(y_arr_small.shape)
+    accuracy, precision, recall, f1 = generate_model_report_per_class(model, X_test, y_test, set(y_train))
+
+    # Final evaluation of the model
+    scores = model.evaluate(X_test, y_test, verbose=0)
+    print("Accuracy: %.2f%%" % (scores[1] * 100))
 
 
     print("Last Break Point")

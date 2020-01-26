@@ -4,7 +4,7 @@ from sklearn import svm
 from sklearn.metrics import confusion_matrix
 from sklearn.utils.multiclass import unique_labels
 from sklearn.metrics import f1_score, recall_score, precision_score, accuracy_score
-from sklearn import metrics 
+from sklearn import metrics
 from sklearn.metrics import precision_recall_curve
 import tensorflow as tf
 import numpy as np
@@ -72,13 +72,14 @@ def mlp_train(x_train, y_train):
     '''
     #callbacks = my_callback()
 
-    x_train = np.array(x_train).astype('float')
+    #x_train = np.array(x_train).astype('float')
     print('Data type of train data : ', x_train.dtype)
-    y_train = np.array(y_train)#.astype(float)
+    #y_train = np.array(y_train)#.astype(float)
     number_of_features = x_train.shape[1]
     number_of_labels = max(set(y_train))
     print('Number of features : ', number_of_features)
     print('Number of classification labels : ', len(set(y_train)))
+    print('Shape of y_train', y_train.shape)
     y_train = np.reshape(y_train, (-1, 1))
     print('Shape of x_train : ', x_train.shape)
     print('Shape of y_train', y_train.shape)
@@ -103,9 +104,9 @@ def mlp_train(x_train, y_train):
                         y_train,
                         batch_size = 64,
                         epochs = 8,
-                        validation_split = 0.2,
-                        verbose = 2,
-                        callbacks = [callbacks])
+                        validation_split = 0.2)
+                        #,verbose = 2,
+                        #callbacks = [callbacks])
 
     mlp_model.summary()
 
@@ -191,9 +192,8 @@ def mlp_mol2vec_train(x_train, y_train):
     history = mlp_model.fit(x_train,
                         y_train,
                         batch_size = 64,
-                        epochs = 25,
+                        epochs = 5,
                         validation_split = 0.1,
-                        verbose = 2,
                         callbacks = [callbacks])
 
     mlp_model.summary()
@@ -244,13 +244,13 @@ def convert_to_2_class(y_true, y_pred, cls):
     new_ytrue = []
     new_ypred = []
     for i in range(len(y_true)):
-        if y_true[i] == cls and y_pred[i] == cls: 
+        if y_true[i] == cls and y_pred[i] == cls:
             new_ytrue.append(1)
             new_ypred.append(1)
         elif y_true[i] == cls and y_pred[i] != cls:
             new_ytrue.append(1)
             new_ypred.append(0)
-        elif y_true[i] != cls and y_pred[i] ==cls: 
+        elif y_true[i] != cls and y_pred[i] ==cls:
             new_ytrue.append(0)
             new_ypred.append(1)
         elif y_true[i] != cls and y_pred[1] !=cls:
