@@ -60,7 +60,7 @@ if __name__ == '__main__':
         = featurize_smiles_and_interactions(clean_relation_list, smiles_to_ECFP, smiles_dict, label_map)
 
     #rint = random.randint(1, 1000)
-    test_size = 0.8
+    test_size = 0.5
     rint = 42
     x_train, x_test, y_train, y_test = train_test_split(smiles_feature_list, \
         interaction_label_list, test_size = test_size, random_state = rint, \
@@ -83,38 +83,19 @@ if __name__ == '__main__':
     y_test = np.array(y_test)
 
 
-    x_train = x_train[0:5000]
-    x_test = x_test[0:5000]
-    y_train = y_train[0:5000]
-    y_test = y_test[0:5000]
-
-    #rf_model = rf_train(x_train, y_train)
-    #mol2vec_model = mlp_mol2vec_train(x_train, y_train)
-    mlp_model = mlp_train(x_train, y_train)
-
-    #Choose the model for further processing
-    model = mlp_model
-    #model = mol2vec_model
+    #x_train = x_train[0:500]
+    #x_test = x_test[0:500]
+    #y_train = y_train[0:500]
+    #y_test = y_test[0:500]
 
 
-    #model.evaluate(x_test, y_test)
+    print('\nTraining Random Forest with smiles_to_ECFP ... ')
+    model = rf_train(x_train, y_train)
+
+    print('\nPrediction / Evaluation for Random Forest Model')
     y_pred = model.predict(x_test)
-    #y_pred = preds
+    print('shape of y_pred is : ', y_pred.shape)
 
-    if (model == mlp_model) or (model == mol2vec_model) :
-        y_pred = np.argmax(y_pred, axis = 1).reshape((y_pred.shape[0],1))
-
-    print('shape of y_pred is : ',y_pred.shape)
-
-    accuracy = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred, average = 'weighted')
-    recall = recall_score(y_test, y_pred, average = 'weighted')
-    f1 = f1_score(y_test, y_pred, average = 'weighted')
-    print("Accuracy: ", accuracy)
-    print("Precision: ", precision)
-    print("Recall: ", recall)
-    print("F1 Score: ", f1)
-    
     classes = sorted(list(set(y_test)))
 
     accuracy_per_class, precision_per_class, recall_per_class, f1score_per_class = \
@@ -132,12 +113,46 @@ if __name__ == '__main__':
     print("MCC Score: ", mcc_score)
 
 
-    #for cls in classes:
-    #    print(cls, accuracy_per_class[cls])
+
+    print('\nTraining mlp with smiles_to_ECFP... ')
+    model = mlp_train(x_train, y_train)
+
+    print('\nPrediction / evaluation of mlp Model... ')
+    y_pred = model.predict(x_test)
+    y_pred = np.argmax(y_pred, axis = 1).reshape((y_pred.shape[0],1))
+    print('shape of y_pred is : ', y_pred.shape)
+
+    classes = sorted(list(set(y_test)))
+
+    accuracy_per_class, precision_per_class, recall_per_class, f1score_per_class = \
+        generate_model_report_per_class(y_test, y_pred, classes)
+
+    mcc_score = metrics.matthews_corrcoef(y_test,y_pred)
+
+    totalF1 = 0
+    for item in f1score_per_class:
+        totalF1 = totalF1 + f1score_per_class[item]
+        print("F1 score for class ",item," is : ", f1score_per_class[item])
+
+    averageF1 = totalF1/max(f1score_per_class)
+    print("Average F1 score per class: ",averageF1)
+    print("MCC Score: ", mcc_score)
+
+
+    # svm_model = svm_train(x_train, y_train)
+
+
+    #accuracy = accuracy_score(y_test, y_pred)
+    #precision = precision_score(y_test, y_pred, average = 'weighted')
+    #recall = recall_score(y_test, y_pred, average = 'weighted')
+    #f1 = f1_score(y_test, y_pred, average = 'weighted')
+    #print("Accuracy: ", accuracy)
+    #print("Precision: ", precision)
+    #print("Recall: ", recall)
+    #print("F1 Score: ", f1)
     
-    #for cls in classes:
-    #    print(cls, y_test.count(cls))
-    
+
+
     stop = timeit.default_timer()
     print('Total runtime: ', round((stop - start)/60, 2), ' minutes')
     

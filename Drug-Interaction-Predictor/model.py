@@ -103,9 +103,9 @@ def mlp_train(x_train, y_train):
                         y_train,
                         batch_size = 64,
                         epochs = 8,
-                        validation_split = 0.2)
-                        #,verbose = 2,
-                        #callbacks = [callbacks])
+                        validation_split = 0.2
+                        ,verbose = 2)
+                        #,callbacks = [callbacks])
 
     print(model.summary())
 
@@ -131,14 +131,14 @@ def lstm_train(X_train, y_train):
     #y_train = np.reshape(y_train, (-1, 1))
     print('Shape of x_train : ', X_train.shape)
     print('Shape of y_train', y_train.shape)
+    embedding_dim = 64
     #print(y_train[:10])
 
     model = Sequential()
-    model.add(Embedding(50, 16, input_length=1024))
+    model.add(Embedding(input_dim=1024, output_dim=embedding_dim, input_length=X_train.shape))
     model.add(Dropout(0.2))
-    model.add(LSTM(100))
-    model.add(Dropout(0.2))
-    model.add(Dense(50, activation='softmax'))
+    model.add(LSTM(100,activation='tanh',dropout=0.2,recurrent_dropout=0.2))
+    model.add(Dense(number_of_labels+1, activation='softmax'))
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     print(model.summary())
 
