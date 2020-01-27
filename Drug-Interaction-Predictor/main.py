@@ -40,12 +40,11 @@ if __name__ == '__main__':
     cleaning = timeit.default_timer()
     print('Finished data ingestion and cleaning. Runtime : ', round((cleaning - start)/60, 2), ' minutes')
 
-
+    '''
     smiles_feature_list, interaction_label_list, drug_pair_list = \
         featurize_smiles_and_interactions(clean_relation_list, \
             smiles_to_mol2vec_vector, smiles_dict, label_map)
 
-    '''
     smiles_feature_list, interaction_label_list, drug_pair_list, filter_count = \
         filter_less_frequent_labels(smiles_feature_list, \
             interaction_label_list, drug_pair_list, 50)'''
@@ -78,19 +77,23 @@ if __name__ == '__main__':
     y_test = np.array(y_test)
 
 
-    x_train_small = x_train[0:5000]
-    y_train_small = y_train[0:5000]
-    x_test_small = x_test[0:5000]
-    y_test_small = y_test[0:5000]
+    #x_train_small = x_train[0:5000]
+    #y_train_small = y_train[0:5000]
+    #x_test_small = x_test[0:5000]
+    #y_test_small = y_test[0:5000]
 
+    x_train_small = x_train
+    y_train_small = y_train
+    x_test_small = x_test
+    y_test_small = y_test
 
     rf_model = rf_train(x_train_small, y_train_small)
-    mol2vec_model = mlp_mol2vec_train(x_train_small, y_train_small)
+    #mol2vec_model = mlp_mol2vec_train(x_train_small, y_train_small)
     mlp_model = mlp_train(x_train_small, y_train_small)
 
     #Choose the model for further processing
-    # model = mlp_model
-    model = mol2vec_model
+    model = mlp_model
+    #model = mol2vec_model
 
     if save:
         model.save('mlp_ECFP.h5')
@@ -123,6 +126,7 @@ if __name__ == '__main__':
     totalF1 = 0
     for item in f1score_per_class:
         totalF1 = totalF1 + f1score_per_class[item]
+        print("F1 score for class ",item," is : ", f1score_per_class[item])
 
     averageF1 = totalF1/max(f1score_per_class)
     print("Average F1 score per class: ",averageF1)
