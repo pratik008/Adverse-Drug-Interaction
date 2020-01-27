@@ -10,7 +10,7 @@ from sklearn.metrics import *
 if __name__ == '__main__':
     
     start = timeit.default_timer()
-    save = False
+
     print('Reading drugs ...')
     # import XML Data - From link source
     drug_list, smiles_dict = read_from_file('../data/sample/full_database.xml')
@@ -35,7 +35,7 @@ if __name__ == '__main__':
     print('Pairs filtered : ', filter_count)
     
     
-    label_map, label_lookup = generate_labels(clean_relation_list, save = save)
+    label_map, label_lookup = generate_labels(clean_relation_list, save = False)
 
     cleaning = timeit.default_timer()
     print('Finished data ingestion and cleaning. Runtime : ', round((cleaning - start)/60, 2), ' minutes')
@@ -60,16 +60,22 @@ if __name__ == '__main__':
         = featurize_smiles_and_interactions(clean_relation_list, smiles_to_ECFP, smiles_dict, label_map)
 
     #rint = random.randint(1, 1000)
+    test_size = 0.8
     rint = 42
     x_train, x_test, y_train, y_test = train_test_split(smiles_feature_list, \
-        interaction_label_list, test_size = 0.2, random_state = rint, \
+        interaction_label_list, test_size = test_size, random_state = rint, \
             stratify = interaction_label_list)
 
+    '''
     z_train, z_test, y_train, y_test = train_test_split(drug_pair_list, \
-        interaction_label_list, test_size = 0.2, random_state = rint, \
+        interaction_label_list, test_size = test_size, random_state = rint, \
             stratify = interaction_label_list)
+    '''
 
-    print('Number of classification labels : ', len(set(y_train)))
+    print('Number of training classification labels : ', len(set(y_train)))
+    print('Number of test classification labels : ', len(set(y_test)))
+    print('Number of training samples : ', len(x_train))
+    print('Number of test samples : ', len(x_test))
 
     x_train = np.array(x_train)
     y_train = np.array(y_train)
@@ -77,51 +83,44 @@ if __name__ == '__main__':
     y_test = np.array(y_test)
 
 
-    #x_train_small = x_train[0:5000]
-    #y_train_small = y_train[0:5000]
-    #x_test_small = x_test[0:5000]
-    #y_test_small = y_test[0:5000]
+    x_train = x_train[0:5000]
+    x_test = x_test[0:5000]
+    y_train = y_train[0:5000]
+    y_test = y_test[0:5000]
 
-    x_train_small = x_train
-    y_train_small = y_train
-    x_test_small = x_test
-    y_test_small = y_test
-
-    rf_model = rf_train(x_train_small, y_train_small)
-    #mol2vec_model = mlp_mol2vec_train(x_train_small, y_train_small)
-    mlp_model = mlp_train(x_train_small, y_train_small)
+    #rf_model = rf_train(x_train, y_train)
+    #mol2vec_model = mlp_mol2vec_train(x_train, y_train)
+    mlp_model = mlp_train(x_train, y_train)
 
     #Choose the model for further processing
     model = mlp_model
     #model = mol2vec_model
 
-    if save:
-        model.save('mlp_ECFP.h5')
-    
-    #model.evaluate(x_test_small, y_test_small)
-    y_pred_small = model.predict(x_test_small)
+
+    #model.evaluate(x_test, y_test)
+    y_pred = model.predict(x_test)
     #y_pred = preds
 
     if (model == mlp_model) or (model == mol2vec_model) :
-        y_pred_small = np.argmax(y_pred_small, axis = 1).reshape((y_pred_small.shape[0],1))
+        y_pred = np.argmax(y_pred, axis = 1).reshape((y_pred.shape[0],1))
 
-    y_pred_small.shape
+    print('shape of y_pred is : ',y_pred.shape)
 
-    accuracy = accuracy_score(y_test_small, y_pred_small)
-    precision = precision_score(y_test_small, y_pred_small, average = 'weighted')
-    recall = recall_score(y_test_small, y_pred_small, average = 'weighted')
-    f1 = f1_score(y_test_small, y_pred_small, average = 'weighted')
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred, average = 'weighted')
+    recall = recall_score(y_test, y_pred, average = 'weighted')
+    f1 = f1_score(y_test, y_pred, average = 'weighted')
     print("Accuracy: ", accuracy)
     print("Precision: ", precision)
     print("Recall: ", recall)
     print("F1 Score: ", f1)
     
-    classes = sorted(list(set(y_test_small)))
+    classes = sorted(list(set(y_test)))
 
     accuracy_per_class, precision_per_class, recall_per_class, f1score_per_class = \
-        generate_model_report_per_class(y_test_small, y_pred_small, classes)
+        generate_model_report_per_class(y_test, y_pred, classes)
 
-    mcc_score = metrics.matthews_corrcoef(y_test_small,y_pred_small)
+    mcc_score = metrics.matthews_corrcoef(y_test,y_pred)
 
     totalF1 = 0
     for item in f1score_per_class:
@@ -137,7 +136,7 @@ if __name__ == '__main__':
     #    print(cls, accuracy_per_class[cls])
     
     #for cls in classes:
-    #    print(cls, y_test_small.count(cls))
+    #    print(cls, y_test.count(cls))
     
     stop = timeit.default_timer()
     print('Total runtime: ', round((stop - start)/60, 2), ' minutes')

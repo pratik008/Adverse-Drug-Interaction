@@ -85,22 +85,21 @@ def mlp_train(x_train, y_train):
     print('Shape of y_train', y_train.shape)
     #print(y_train[:10])
 
-    mlp_model = tf.keras.Sequential([
-        tf.keras.layers.Dense(number_of_features, activation = tf.nn.relu),
-        tf.keras.layers.Dense(number_of_features, activation = tf.nn.relu),
-        tf.keras.layers.Dense(number_of_features//4, activation = tf.nn.relu),
-        tf.keras.layers.Dense(number_of_features//32, activation = tf.nn.relu),
-        tf.keras.layers.Dense(number_of_labels + 1, activation = tf.nn.softmax)
-    ])
+    model = Sequential()
+    model.add(Dense(units=number_of_features, activation='relu'))
+    model.add(Dropout(0.2))
+    model.add(Dense(units=number_of_features, activation='relu'))
+    model.add(Dropout(0.2))
+    model.add(Dense(units=number_of_features, activation='relu'))
+    model.add(Dropout(0.2))
+    model.add(Dense(units=number_of_features//4, activation='relu'))
+    model.add(Dropout(0.2))
+    model.add(Dense(units=number_of_features//32, activation='relu'))
+    model.add(Dropout(0.2))
+    model.add(Dense(units=number_of_labels+1, activation='softmax'))
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-    #y_train = tf.keras.utils.to_categorical(y_train)
-
-    # opt = tf.keras.optimizers.SGD(lr=0.01, momentum=0.9)
-    mlp_model.compile(optimizer = 'adam',
-                loss = 'sparse_categorical_crossentropy',
-                metrics = ['accuracy'])
-
-    history = mlp_model.fit(x_train,
+    history = model.fit(x_train,
                         y_train,
                         batch_size = 64,
                         epochs = 8,
@@ -108,9 +107,9 @@ def mlp_train(x_train, y_train):
                         #,verbose = 2,
                         #callbacks = [callbacks])
 
-    mlp_model.summary()
+    print(model.summary())
 
-    return mlp_model
+    return model
 
 def lstm_train(X_train, y_train):
     '''Build and train a multilayer perceptron model
