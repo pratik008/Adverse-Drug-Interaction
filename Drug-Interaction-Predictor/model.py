@@ -27,7 +27,7 @@ def rf_train(x_train, y_train):
     Returns :
         model (object): Returns an sklearn random forest model trained on the input data
     '''
-    rf_model = RandomForestClassifier(n_estimators = 100)
+    rf_model = RandomForestClassifier(n_estimators = 100, verbose=2)
 
     rf_model.fit(x_train, y_train)
 
@@ -140,9 +140,9 @@ def lstm_train(X_train, y_train):
     model = Sequential()
     model.add(Embedding(input_dim=45, output_dim=embedding_dim, input_length=X_train.shape[1]))
     model.add(Dropout(0.2))
-    #model.add(Bidirectional(LSTM(128,activation='tanh',dropout=0.2,recurrent_dropout=0.2)))
-    model.add(Bidirectional(CuDNNLSTM(128,return_sequences=True)))
-    model.add(Dropout(0.2))
+    model.add(Bidirectional(LSTM(128,activation='tanh',dropout=0.2,recurrent_dropout=0.2)))
+    #model.add(Bidirectional(CuDNNLSTM(128,return_sequences=True)))
+    #model.add(Dropout(0.2))
     model.add(Dense(128, activation='tanh'))
     model.add(Dropout(0.2))
     model.add(Dense(number_of_labels+1, activation='softmax'))

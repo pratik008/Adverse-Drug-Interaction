@@ -81,11 +81,12 @@ if __name__ == '__main__':
     x_test = np.array(x_test)
     y_test = np.array(y_test)
 
+    x_train
 
-    #x_train = x_train[0:500]
-    #x_test = x_test[0:500]
-    #y_train = y_train[0:500]
-    #y_test = y_test[0:500]
+    x_train = x_train[0:500]
+    x_test = x_test[0:500]
+    y_train = y_train[0:500]
+    y_test = y_test[0:500]
 
 
     print('\nTraining Random Forest with smiles_to_ECFP ... ')

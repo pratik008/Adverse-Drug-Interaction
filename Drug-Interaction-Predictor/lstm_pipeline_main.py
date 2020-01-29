@@ -42,7 +42,7 @@ def main():
     label_map, label_lookup = generate_labels(relation_list)
 
     # Tokenize smiles and interactions - create labels for training data
-    X_label, y_label = tokenize_smiles_and_interactions(clean_relation_list,smiles_dict,label_map, token_length=512)
+    X_label, y_label = tokenize_smiles_and_interactions(clean_relation_list,smiles_dict,label_map, token_length=128)
 
 
     middle = timeit.default_timer()
@@ -67,10 +67,10 @@ def main():
     y_test = np.array(y_test)
 
 
-    x_train = x_train[0:1000]
-    x_test = x_test[0:1000]
-    y_train = y_train[0:1000]
-    y_test = y_test[0:1000]
+    #x_train = x_train[0:500]
+    #x_test = x_test[0:500]
+    #y_train = y_train[0:500]
+    #y_test = y_test[0:500]
 
 
     print('Number of training classification labels : ', len(set(y_train)))
@@ -80,15 +80,13 @@ def main():
 
 
     print('\nTraining LSTM Model with tokenized SMILEs Strings ... ')
-    #model = lstm_train(x_train,y_train)
-    model = rf_train(x_train,x_test)
+    model = lstm_train(x_train,y_train)
+    #model = rf_train(x_train,y_train)
 
     print('\nPrediction / evaluation of mlp Model... ')
     y_pred = model.predict(x_test)
     y_pred = np.argmax(y_pred, axis=1).reshape((y_pred.shape[0], 1))
     print('shape of y_pred is : ', y_pred.shape)
-
-    len(y_test)
 
 
     classes = sorted(list(set(y_test)))
