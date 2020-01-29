@@ -141,7 +141,7 @@ def read_data(tree, number_of_drugs = 50000, addon = '{http://www.drugbank.ca}')
     return drug_list, smiles_dict
 
 
-def generate_interactions(drug_list, smiles_dict):
+def generate_interactions(drug_list, smiles_dict, max_interaction_count = 9000000):
     '''Function to extract interaction pairs from a list of drugs
 
     Args :
@@ -153,6 +153,7 @@ def generate_interactions(drug_list, smiles_dict):
     '''
     interaction_list = []
     interaction_count = 0
+
     for drug in drug_list:
         for drugb, description in drug.interactions.items():
             # Only keep drugs that have structural data
@@ -160,5 +161,7 @@ def generate_interactions(drug_list, smiles_dict):
                 interaction = Interaction(drug.name, drugb, description)
                 interaction_list.append(interaction)
                 interaction_count += 1
+                if interaction_count > max_interaction_count:
+                    break
 
     return interaction_list

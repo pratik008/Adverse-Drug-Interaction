@@ -98,7 +98,7 @@ def tokenize_smiles_and_interactions(relation_list,
         sub, obj, interaction = relation.get()
         sub_smiles, obj_smiles = smiles_dict[sub], smiles_dict[obj]
         interaction_label = label_map[interaction]
-        X_concatenate_smile.append(sub_smiles[:token_length/2]+obj_smiles[:token_length/2])
+        X_concatenate_smile.append(sub_smiles[:int(token_length/2)]+obj_smiles[:int(token_length/2)])
         y_label.append(interaction_label)
 
 
