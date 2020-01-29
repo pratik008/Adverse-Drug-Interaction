@@ -1,0 +1,147 @@
+Inside my callback
+Reading drugs ...
+Drugs read :  3529
+Generating a list of interactions ...
+Interactions found :  2308260
+Generating relations ...
+Relations retained :  1875720
+Relations filtered :  432540
+Relations left :  937860
+Duplicates removed :  937860
+Relations left :  937712
+Pairs filtered :  148
+Finished data ingestion and cleaning. Runtime :  2.81  minutes
+Finished feature generation. Runtime :  2.81  minutes
+Number of training classification labels :  47
+Number of test classification labels :  47
+Number of training samples :  466817
+Number of test samples :  466817
+
+Training Random Forest with smiles_to_ECFP ... 
+
+Prediction / Evaluation for Random Forest Model
+shape of y_pred is :  (500,)
+F1 score for class  1  is :  0.0
+F1 score for class  2  is :  0.0
+F1 score for class  3  is :  0.4578313253012048
+F1 score for class  4  is :  0.05128205128205128
+F1 score for class  7  is :  0.5109034267912773
+F1 score for class  8  is :  0.22222222222222224
+F1 score for class  9  is :  0.0
+F1 score for class  10  is :  0.04000000000000001
+F1 score for class  11  is :  0.0
+F1 score for class  12  is :  0.0
+F1 score for class  15  is :  0.0
+F1 score for class  17  is :  0.3
+F1 score for class  18  is :  0.07058823529411765
+F1 score for class  19  is :  0.0
+F1 score for class  20  is :  0.0
+F1 score for class  21  is :  0.0
+F1 score for class  22  is :  0.0
+F1 score for class  24  is :  0.4615384615384615
+F1 score for class  25  is :  0.0
+F1 score for class  26  is :  0.0
+F1 score for class  27  is :  0.0
+F1 score for class  28  is :  0.0
+F1 score for class  29  is :  0.0
+F1 score for class  30  is :  0.0
+F1 score for class  31  is :  0.0
+F1 score for class  34  is :  0.0
+F1 score for class  35  is :  0.0
+F1 score for class  37  is :  0.0
+F1 score for class  40  is :  0.0
+F1 score for class  44  is :  0.0
+Average F1 score per class:  0.048053766418848516
+MCC Score:  0.2233625612026842
+
+Training mlp with smiles_to_ECFP... 
+Data type of train data :  uint8
+Number of features :  4096
+Number of classification labels :  27
+Shape of y_train (500,)
+Shape of x_train :  (500, 4096)
+Shape of y_train (500, 1)
+Train on 400 samples, validate on 100 samples
+Epoch 1/8
+ - 1s - loss: 3.4726 - accuracy: 0.1675 - val_loss: 2.8360 - val_accuracy: 0.2100
+Epoch 2/8
+ - 0s - loss: 2.6124 - accuracy: 0.2300 - val_loss: 2.6464 - val_accuracy: 0.2100
+Epoch 3/8
+ - 0s - loss: 2.2584 - accuracy: 0.2600 - val_loss: 2.5020 - val_accuracy: 0.3800
+Epoch 4/8
+ - 0s - loss: 1.7950 - accuracy: 0.4400 - val_loss: 2.5441 - val_accuracy: 0.4200
+Epoch 5/8
+ - 0s - loss: 1.4432 - accuracy: 0.5375 - val_loss: 2.6477 - val_accuracy: 0.2900
+Epoch 6/8
+ - 0s - loss: 0.9599 - accuracy: 0.7450 - val_loss: 3.3143 - val_accuracy: 0.4000
+Epoch 7/8
+ - 0s - loss: 0.6372 - accuracy: 0.7925 - val_loss: 3.4284 - val_accuracy: 0.2900
+Epoch 8/8
+ - 0s - loss: 0.5081 - accuracy: 0.8575 - val_loss: 4.0824 - val_accuracy: 0.3800
+Model: "sequential_1"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+dense_1 (Dense)              (None, 4096)              16781312  
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 4096)              0         
+_________________________________________________________________
+dense_2 (Dense)              (None, 4096)              16781312  
+_________________________________________________________________
+dropout_2 (Dropout)          (None, 4096)              0         
+_________________________________________________________________
+dense_3 (Dense)              (None, 4096)              16781312  
+_________________________________________________________________
+dropout_3 (Dropout)          (None, 4096)              0         
+_________________________________________________________________
+dense_4 (Dense)              (None, 1024)              4195328   
+_________________________________________________________________
+dropout_4 (Dropout)          (None, 1024)              0         
+_________________________________________________________________
+dense_5 (Dense)              (None, 128)               131200    
+_________________________________________________________________
+dropout_5 (Dropout)          (None, 128)               0         
+_________________________________________________________________
+dense_6 (Dense)              (None, 45)                5805      
+=================================================================
+Total params: 54,676,269
+Trainable params: 54,676,269
+Non-trainable params: 0
+_________________________________________________________________
+None
+
+Prediction / evaluation of mlp Model... 
+shape of y_pred is :  (500, 1)
+F1 score for class  1  is :  0.1111111111111111
+F1 score for class  2  is :  0.0
+F1 score for class  3  is :  0.4879725085910652
+F1 score for class  4  is :  0.1509433962264151
+F1 score for class  7  is :  0.5777777777777778
+F1 score for class  8  is :  0.0
+F1 score for class  9  is :  0.0
+F1 score for class  10  is :  0.19469026548672566
+F1 score for class  11  is :  0.0
+F1 score for class  12  is :  0.0
+F1 score for class  15  is :  0.0
+F1 score for class  17  is :  0.35
+F1 score for class  18  is :  0.3333333333333333
+F1 score for class  19  is :  0.0
+F1 score for class  20  is :  0.0
+F1 score for class  21  is :  0.0
+F1 score for class  22  is :  0.0
+F1 score for class  24  is :  0.39024390243902435
+F1 score for class  25  is :  0.0
+F1 score for class  26  is :  0.0
+F1 score for class  27  is :  0.0
+F1 score for class  28  is :  0.0
+F1 score for class  29  is :  0.0
+F1 score for class  30  is :  0.0
+F1 score for class  31  is :  0.0
+F1 score for class  34  is :  0.0
+F1 score for class  35  is :  0.0
+F1 score for class  37  is :  0.0
+F1 score for class  40  is :  0.0
+F1 score for class  44  is :  0.0
+Average F1 score per class:  0.05900164306739664
+MCC Score:  0.2587634381250078
+Total runtime:  3.11  minutes

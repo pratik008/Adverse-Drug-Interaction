@@ -1,0 +1,171 @@
+Inside my callback
+Reading drugs ...
+Drugs read :  3529
+Generating a list of interactions ...
+Interactions found :  2308260
+Generating relations ...
+Relations retained :  1875720
+Relations filtered :  432540
+Relations left :  937860
+Duplicates removed :  937860
+Relations left :  937712
+Pairs filtered :  148
+Finished data ingestion and cleaning. Runtime :  2.84  minutes
+Finished feature generation. Runtime :  2.84  minutes
+Number of training classification labels :  47
+Number of test classification labels :  47
+Number of training samples :  746907
+Number of test samples :  186727
+
+Training Random Forest with smiles_to_ECFP ... 
+
+Prediction / Evaluation for Random Forest Model
+shape of y_pred is :  (186727,)
+F1 score for class  0  is :  0.8915094339622641
+F1 score for class  1  is :  0.8385064393588436
+F1 score for class  2  is :  0.8994708994708995
+F1 score for class  3  is :  0.9265727053970437
+F1 score for class  4  is :  0.8850933882536751
+F1 score for class  5  is :  0.7215686274509805
+F1 score for class  6  is :  0.5517241379310345
+F1 score for class  7  is :  0.9237291601346838
+F1 score for class  8  is :  0.8667613946879441
+F1 score for class  9  is :  0.7636162565662151
+F1 score for class  10  is :  0.8242876935124391
+F1 score for class  11  is :  0.8791376514356578
+F1 score for class  12  is :  0.8169934640522877
+F1 score for class  13  is :  0.6296296296296297
+F1 score for class  14  is :  0.8837209302325583
+F1 score for class  15  is :  0.8342728297632468
+F1 score for class  16  is :  0.6428571428571429
+F1 score for class  17  is :  0.7878564041955974
+F1 score for class  18  is :  0.8241988150871087
+F1 score for class  19  is :  0.9116347569955817
+F1 score for class  20  is :  0.8993082244427363
+F1 score for class  21  is :  0.9473684210526316
+F1 score for class  22  is :  0.7980997624703089
+F1 score for class  23  is :  0.5151515151515151
+F1 score for class  24  is :  0.8967301601463176
+F1 score for class  25  is :  0.9008620689655172
+F1 score for class  26  is :  0.5655737704918034
+F1 score for class  27  is :  0.9574645537948291
+F1 score for class  28  is :  0.8353221957040574
+F1 score for class  29  is :  0.847457627118644
+F1 score for class  30  is :  0.7781255754004787
+F1 score for class  31  is :  0.7598870056497175
+F1 score for class  32  is :  0.7692307692307693
+F1 score for class  33  is :  0.758893280632411
+F1 score for class  34  is :  0.7703180212014135
+F1 score for class  35  is :  0.9476309226932669
+F1 score for class  36  is :  0.6040268456375839
+F1 score for class  37  is :  0.8604878048780489
+F1 score for class  38  is :  0.8720992984349704
+F1 score for class  39  is :  0.42857142857142855
+F1 score for class  40  is :  0.8246364414029085
+F1 score for class  41  is :  0.9585798816568047
+F1 score for class  42  is :  0.9333333333333333
+F1 score for class  43  is :  0.8769230769230769
+F1 score for class  44  is :  0.84472049689441
+F1 score for class  45  is :  0.8571428571428571
+F1 score for class  46  is :  0.8823529411764706
+Average F1 score per class:  0.8302921748081116
+MCC Score:  0.8609286223897107
+
+Training mlp with smiles_to_ECFP... 
+Data type of train data :  uint8
+Number of features :  4096
+Number of classification labels :  47
+Shape of y_train (746907,)
+Shape of x_train :  (746907, 4096)
+Shape of y_train (746907, 1)
+Train on 597525 samples, validate on 149382 samples
+Epoch 1/8
+ - 605s - loss: 0.5267 - accuracy: 0.8466 - val_loss: 0.2932 - val_accuracy: 0.9154
+Epoch 2/8
+ - 606s - loss: 0.2138 - accuracy: 0.9362 - val_loss: 0.2101 - val_accuracy: 0.9384
+Epoch 3/8
+ - 606s - loss: 0.1506 - accuracy: 0.9556 - val_loss: 0.1857 - val_accuracy: 0.9458
+Epoch 4/8
+ - 607s - loss: 0.1149 - accuracy: 0.9667 - val_loss: 0.1889 - val_accuracy: 0.9495
+Epoch 5/8
+ - 606s - loss: 0.0976 - accuracy: 0.9733 - val_loss: 0.1932 - val_accuracy: 0.9510
+Epoch 6/8
+ - 606s - loss: 0.1321 - accuracy: 0.9783 - val_loss: 0.2213 - val_accuracy: 0.9526
+Epoch 7/8
+ - 606s - loss: 0.0712 - accuracy: 0.9816 - val_loss: 0.2079 - val_accuracy: 0.9536
+Epoch 8/8
+ - 606s - loss: 0.0685 - accuracy: 0.9835 - val_loss: 0.2065 - val_accuracy: 0.9556
+Model: "sequential_1"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+dense_1 (Dense)              (None, 4096)              16781312  
+_________________________________________________________________
+dense_2 (Dense)              (None, 4096)              16781312  
+_________________________________________________________________
+dense_3 (Dense)              (None, 4096)              16781312  
+_________________________________________________________________
+dense_4 (Dense)              (None, 1024)              4195328   
+_________________________________________________________________
+dense_5 (Dense)              (None, 128)               131200    
+_________________________________________________________________
+dense_6 (Dense)              (None, 47)                6063      
+=================================================================
+Total params: 54,676,527
+Trainable params: 54,676,527
+Non-trainable params: 0
+_________________________________________________________________
+None
+
+Prediction / evaluation of mlp Model... 
+shape of y_pred is :  (186727, 1)
+F1 score for class  0  is :  0.9290989660265879
+F1 score for class  1  is :  0.9610894941634242
+F1 score for class  2  is :  0.9616935483870969
+F1 score for class  3  is :  0.9785420859964453
+F1 score for class  4  is :  0.9679395548294873
+F1 score for class  5  is :  0.646551724137931
+F1 score for class  6  is :  0.8059701492537312
+F1 score for class  7  is :  0.9740085894361091
+F1 score for class  8  is :  0.9653148904956512
+F1 score for class  9  is :  0.8790777532499386
+F1 score for class  10  is :  0.9207623483270009
+F1 score for class  11  is :  0.9752279032897344
+F1 score for class  12  is :  0.9457831325301205
+F1 score for class  13  is :  0.8089171974522292
+F1 score for class  14  is :  0.948529411764706
+F1 score for class  15  is :  0.9305263157894738
+F1 score for class  16  is :  0.7462686567164178
+F1 score for class  17  is :  0.904994070365002
+F1 score for class  18  is :  0.9217061989236595
+F1 score for class  19  is :  0.9580867850098619
+F1 score for class  20  is :  0.9635376260667184
+F1 score for class  21  is :  0.958139534883721
+F1 score for class  22  is :  0.9554489376285127
+F1 score for class  23  is :  0.47916666666666663
+F1 score for class  24  is :  0.9756030323914542
+F1 score for class  25  is :  0.9696287964004499
+F1 score for class  26  is :  0.8834951456310679
+F1 score for class  27  is :  0.9741019214703426
+F1 score for class  28  is :  0.96
+F1 score for class  29  is :  0.9411764705882353
+F1 score for class  30  is :  0.952006552006552
+F1 score for class  31  is :  0.9574468085106381
+F1 score for class  32  is :  0.9333333333333333
+F1 score for class  33  is :  0.8562401263823065
+F1 score for class  34  is :  0.5128205128205128
+F1 score for class  35  is :  0.9698492462311558
+F1 score for class  36  is :  0.8936170212765958
+F1 score for class  37  is :  0.9361296472831269
+F1 score for class  38  is :  0.9804560260586319
+F1 score for class  39  is :  0.7142857142857143
+F1 score for class  40  is :  0.950109649122807
+F1 score for class  41  is :  0.9204545454545454
+F1 score for class  42  is :  0.9688385269121813
+F1 score for class  43  is :  0.9793103448275863
+F1 score for class  44  is :  0.9430051813471503
+F1 score for class  45  is :  0.9523809523809523
+F1 score for class  46  is :  0.8955223880597014
+Average F1 score per class:  0.9240476844383757
+MCC Score:  0.9492682254748629
+Total runtime:  154.23  minutes
