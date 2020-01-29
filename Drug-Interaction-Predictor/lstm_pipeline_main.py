@@ -80,12 +80,16 @@ def main():
 
 
     print('\nTraining LSTM Model with tokenized SMILEs Strings ... ')
-    model = lstm_train(x_train,y_train)
+    #model = lstm_train(x_train,y_train)
+    model = rf_train(x_train,x_test)
 
     print('\nPrediction / evaluation of mlp Model... ')
     y_pred = model.predict(x_test)
     y_pred = np.argmax(y_pred, axis=1).reshape((y_pred.shape[0], 1))
     print('shape of y_pred is : ', y_pred.shape)
+
+    len(y_test)
+
 
     classes = sorted(list(set(y_test)))
 
