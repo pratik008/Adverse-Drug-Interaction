@@ -67,10 +67,10 @@ def main():
     y_test = np.array(y_test)
 
 
-    x_train = x_train[0:1000]
-    x_test = x_test[0:1000]
-    y_train = y_train[0:1000]
-    y_test = y_test[0:1000]
+    #x_train = x_train[0:1000]
+    #x_test = x_test[0:1000]
+    #y_train = y_train[0:1000]
+    #y_test = y_test[0:1000]
 
 
     print('Number of training classification labels : ', len(set(y_train)))
