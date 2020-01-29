@@ -134,15 +134,18 @@ def lstm_train(X_train, y_train):
     embedding_dim = 64
     #print(y_train[:10])
 
+
+    print('X_train[1].shape : ',X_train.shape[1])
+
     model = Sequential()
-    model.add(Embedding(input_dim=1024, output_dim=embedding_dim, input_length=X_train.shape))
+    model.add(Embedding(input_dim=45, output_dim=embedding_dim, input_length=X_train.shape[1]))
     model.add(Dropout(0.2))
     model.add(LSTM(100,activation='tanh',dropout=0.2,recurrent_dropout=0.2))
     model.add(Dense(number_of_labels+1, activation='softmax'))
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     print(model.summary())
 
-    model.fit(X_train, y_train, epochs=3, batch_size=64, validation_split=0.2)
+    model.fit(X_train, y_train, epochs=5, batch_size=64, validation_split=0.2)
 
     return model
 

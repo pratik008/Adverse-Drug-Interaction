@@ -69,7 +69,7 @@ def smiles_to_mol2vec_vector(smiles, model, fp_radius = 2, uncommon = None):
 
 
 def tokenize_smiles_and_interactions(relation_list,
-     smiles_dict, label_map):
+     smiles_dict, label_map, token_length=1024):
     '''Generate numerical vectors (tokens) from smiles data and label interactions.
 
         The dictionary smiles_dict is used to find the SMILEs representations of
@@ -84,10 +84,11 @@ def tokenize_smiles_and_interactions(relation_list,
             smiles_dict (dict): Dictionary mapping drug names to SMILES strings.
             label_map (dict): Dictionary mapping interaction keywords to
                 numerical labels.
+            token_length: Length of each token (Concatenated SMILEs string)
 
         Returns :
-            X_label: tokenized data for the SMILEs string. (X)
-            y_label: tokenized data for the interactions. (y)
+            X_label: tokenized, concatenated druga SMILEs with Drugb SMILEs. (X)
+            y_label: tokenized label for the interactions. (y)
         '''
 
     X_concatenate_smile = []
@@ -109,7 +110,7 @@ def tokenize_smiles_and_interactions(relation_list,
     # If we already have a character list, then replace the tk.word_index
     # If not, just skip below part
 
-    X_label = pad_sequences(smile_seq, maxlen=1024, padding='post')
+    X_label = pad_sequences(smile_seq, maxlen=token_length, padding='post')
 
     return X_label, y_label
 

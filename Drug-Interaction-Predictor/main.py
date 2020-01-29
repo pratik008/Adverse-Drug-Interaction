@@ -34,7 +34,7 @@ if __name__ == '__main__':
     print('Relations left : ', len(clean_relation_list))
     print('Pairs filtered : ', filter_count)
     
-    
+    # Create the labels from the relation_list
     label_map, label_lookup = generate_labels(clean_relation_list, save = False)
 
     cleaning = timeit.default_timer()
@@ -49,15 +49,14 @@ if __name__ == '__main__':
         filter_less_frequent_labels(smiles_feature_list, \
             interaction_label_list, drug_pair_list, 50)'''
 
-    #print('Number of drug pairs retained : ', len(smiles_feature_list))
-    #print('Pairs filtered : ', filter_count)
-
-    middle = timeit.default_timer()
-    print('Finished feature generation. Runtime : ', round((middle - start)/60, 2), ' minutes')
 
     # Feature generarion - from SMILEs to ECFP
     smiles_feature_list, interaction_label_list, drug_pair_list \
         = featurize_smiles_and_interactions(clean_relation_list, smiles_to_ECFP, smiles_dict, label_map)
+
+
+    middle = timeit.default_timer()
+    print('Finished feature generation. Runtime : ', round((middle - start)/60, 2), ' minutes')
 
     #rint = random.randint(1, 1000)
     test_size = 0.5
