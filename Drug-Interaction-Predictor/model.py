@@ -25,6 +25,8 @@ from keras.callbacks import *
 #
 #
 maxlen = 512
+max_features = 46
+embed_size = 64
 
 def dot_product(x, kernel):
     """
@@ -385,12 +387,13 @@ def cnn_lstm_train(X_train, y_train):
 
 # https://www.kaggle.com/yekenot/2dcnn-textclassifier
 
-def model_cnn(embedding_matrix):
+def model_cnn(X_train, y_train):
+
     filter_sizes = [1, 2, 3, 5]
     num_filters = 36
 
     inp = Input(shape=(maxlen,))
-    x = Embedding(max_features, embed_size, weights=[embedding_matrix])(inp)
+    x = Embedding(max_features, embed_size)(inp)
     x = Reshape((maxlen, embed_size, 1))(x)
 
     maxpool_pool = []
@@ -403,10 +406,14 @@ def model_cnn(embedding_matrix):
     z = Flatten()(z)
     z = Dropout(0.1)(z)
 
-    outp = Dense(1, activation="sigmoid")(z)
+    outp = Dense(max(y_train) + 1, activation="softmax")(z)
 
     model = Model(inputs=inp, outputs=outp)
-    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+    print(model.summary())
+
+    model.fit(X_train, y_train, epochs=5, batch_size=128, validation_split=0.2, verbose=2)
 
     return model
 
