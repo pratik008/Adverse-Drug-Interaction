@@ -42,7 +42,7 @@ def main():
     label_map, label_lookup = generate_labels(relation_list)
 
     # Tokenize smiles and interactions - create labels for training data
-    X_label, y_label = tokenize_smiles_and_interactions(clean_relation_list,smiles_dict,label_map, token_length=128)
+    X_label, y_label = tokenize_smiles_and_interactions(clean_relation_list,smiles_dict,label_map, token_length=512)
 
 
     middle = timeit.default_timer()
@@ -55,23 +55,11 @@ def main():
         y_label, test_size = test_size, random_state = rint, \
             stratify = y_label)
 
-    print('Number of training classification labels : ', len(set(y_train)))
-    print('Number of test classification labels : ', len(set(y_test)))
-    print('Number of training samples : ', len(x_train))
-    print('Number of test samples : ', len(x_test))
-
 
     x_train = np.array(x_train)
     y_train = np.array(y_train)
     x_test = np.array(x_test)
     y_test = np.array(y_test)
-
-
-    #x_train = x_train[0:500]
-    #x_test = x_test[0:500]
-    #y_train = y_train[0:500]
-    #y_test = y_test[0:500]
-
 
 
     print('Number of training classification labels : ', len(set(y_train)))
@@ -81,10 +69,13 @@ def main():
 
 
     print('\nTraining LSTM Model with tokenized SMILEs Strings ... ')
-    model = lstm_train(x_train,y_train)
+    model = cnn_lstm_train(x_train, y_train)
+    model = lstm_train(x_train, y_train)
+    model = lstm_train_more(x_train, y_train)
     #model = rf_train(x_train,y_train)
 
-    print('\nPrediction / evaluation of mlp Model... ')
+
+    print('\nPrediction / evaluation of LSTM Model... ')
     y_pred = model.predict(x_test)
     y_pred = np.argmax(y_pred, axis=1).reshape((y_pred.shape[0], 1))
     print('shape of y_pred is : ', y_pred.shape)

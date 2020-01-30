@@ -4,7 +4,7 @@ from sklearn.metrics import f1_score, recall_score, precision_score, accuracy_sc
 import tensorflow as tf
 import numpy as np
 from keras.models import Sequential
-from keras.layers import Embedding, Dense, LSTM, Bidirectional, CuDNNLSTM
+from keras.layers import Embedding, Dense, LSTM, Bidirectional, CuDNNLSTM, Conv1D, MaxPooling1D
 from keras.layers import Dropout
 
 #from tensorflow.compat.v1.keras.layers import CuDNNLSTM
@@ -23,7 +23,7 @@ def rf_train(x_train, y_train):
     Returns :
         model (object): Returns an sklearn random forest model trained on the input data
     '''
-    rf_model = RandomForestClassifier(n_estimators = 100, verbose=2)
+    rf_model = RandomForestClassifier(n_estimators = 100, verbose=1)
 
     rf_model.fit(x_train, y_train)
 
@@ -136,9 +136,9 @@ def lstm_train(X_train, y_train):
     model = Sequential()
     model.add(Embedding(input_dim=45, output_dim=embedding_dim, input_length=X_train.shape[1]))
     model.add(Dropout(0.2))
-    model.add(Bidirectional(LSTM(64,activation='tanh',dropout=0.2,recurrent_dropout=0.2)))
-    #model.add(Bidirectional(CuDNNLSTM(128,return_sequences=True)))
-    #model.add(Dropout(0.2))
+    #model.add(Bidirectional(LSTM(64,activation='tanh',dropout=0.2,recurrent_dropout=0.2)))
+    model.add(Bidirectional(CuDNNLSTM(128,return_sequences=True)))
+    model.add(Dropout(0.2))
     model.add(Dense(64, activation='tanh'))
     model.add(Dropout(0.2))
     model.add(Dense(number_of_labels+1, activation='softmax'))
@@ -148,6 +148,93 @@ def lstm_train(X_train, y_train):
     model.fit(X_train, y_train, epochs=5, batch_size=128, validation_split=0.2, verbose=2)
 
     return model
+
+
+def lstm_train_more(X_train, y_train):
+    '''Build and train a multilayer perceptron model
+
+    Args :
+        x_train (numpy.ndarray): Features for training
+        y_train (numpy.ndarray): Classification labels for training
+
+    Returns :
+        model (object): Returns a Keras neural network fit on the input data
+    '''
+    #callbacks = my_callback()
+
+    print('Data type of train data : ', X_train.dtype)
+    number_of_features = X_train.shape[1]
+    number_of_labels = max(set(y_train))
+    print('Number of features : ', number_of_features)
+    print('Number of classification labels : ', len(set(y_train)))
+    #y_train = np.reshape(y_train, (-1, 1))
+    print('Shape of x_train : ', X_train.shape)
+    print('Shape of y_train', y_train.shape)
+    embedding_dim = 64
+    #print(y_train[:10])
+
+
+    print('X_train[1].shape : ',X_train.shape[1])
+
+    model = Sequential()
+    model.add(Embedding(input_dim=45, output_dim=embedding_dim, input_length=X_train.shape[1]))
+    model.add(Dropout(0.2))
+    #model.add(Bidirectional(LSTM(64,activation='tanh',dropout=0.2,recurrent_dropout=0.2)))
+    model.add(Bidirectional(CuDNNLSTM(128,return_sequences=True)))
+    model.add(Dropout(0.2))
+    model.add(Bidirectional(CuDNNLSTM(64, return_sequences=False)))
+    model.add(Dense(64, activation='tanh'))
+    model.add(Dropout(0.2))
+    model.add(Dense(number_of_labels+1, activation='softmax'))
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    print(model.summary())
+
+    model.fit(X_train, y_train, epochs=5, batch_size=128, validation_split=0.2, verbose=2)
+
+    return model
+
+
+def cnn_lstm_train(X_train, y_train):
+        '''Build and train a multilayer perceptron model
+
+        Args :
+            x_train (numpy.ndarray): Features for training
+            y_train (numpy.ndarray): Classification labels for training
+
+        Returns :
+            model (object): Returns a Keras neural network fit on the input data
+        '''
+        # callbacks = my_callback()
+
+        print('Data type of train data : ', X_train.dtype)
+        number_of_features = X_train.shape[1]
+        number_of_labels = max(set(y_train))
+        print('Number of features : ', number_of_features)
+        print('Number of classification labels : ', len(set(y_train)))
+        # y_train = np.reshape(y_train, (-1, 1))
+        print('Shape of x_train : ', X_train.shape)
+        print('Shape of y_train', y_train.shape)
+        embedding_dim = 64
+        # print(y_train[:10])
+
+        print('X_train[1].shape : ', X_train.shape[1])
+
+        model = Sequential()
+        model.add(Embedding(input_dim=45, output_dim=embedding_dim, input_length=X_train.shape[1]))
+        model.add(Dropout(0.2))
+        model.add(Conv1D(64, 5, activation='tanh'))
+        model.add(MaxPooling1D(pool_size=8))
+        #model.add(Bidirectional(LSTM(64,activation='tanh',dropout=0.2,recurrent_dropout=0.2)))
+        model.add(Bidirectional(CuDNNLSTM(64, return_sequences=False)))
+        model.add(Dropout(0.2))
+        model.add(Dense(number_of_labels + 1, activation='softmax'))
+        model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        print(model.summary())
+
+
+        model.fit(X_train, y_train, epochs=5, batch_size=128, validation_split=0.2, verbose=2)
+
+        return model
 
 
 def mlp_mol2vec_train(x_train, y_train):

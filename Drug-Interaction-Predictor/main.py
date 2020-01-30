@@ -3,7 +3,8 @@ from interaction_labelling import *
 from feature_generation import *
 from model import *
 import timeit
-from sklearn.metrics import *
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
 
 # File to run everything and test functions
 
@@ -17,7 +18,7 @@ if __name__ == '__main__':
     print('Drugs read : ', len(drug_list))
 
     print('Generating a list of interactions ...')
-    interaction_list = generate_interactions(drug_list, smiles_dict)
+    interaction_list = generate_interactions(drug_list, smiles_dict,500)
     print('Interactions found : ', len(interaction_list))
     
     print('Generating relations ...')
@@ -71,22 +72,16 @@ if __name__ == '__main__':
             stratify = interaction_label_list)
     '''
 
-    print('Number of training classification labels : ', len(set(y_train)))
-    print('Number of test classification labels : ', len(set(y_test)))
-    print('Number of training samples : ', len(x_train))
-    print('Number of test samples : ', len(x_test))
-
     x_train = np.array(x_train)
     y_train = np.array(y_train)
     x_test = np.array(x_test)
     y_test = np.array(y_test)
 
-    x_train
+    print('Number of training classification labels : ', len(set(y_train)))
+    print('Number of test classification labels : ', len(set(y_test)))
+    print('Number of training samples : ', len(x_train))
+    print('Number of test samples : ', len(x_test))
 
-    x_train = x_train[0:500]
-    x_test = x_test[0:500]
-    y_train = y_train[0:500]
-    y_test = y_test[0:500]
 
 
     print('\nTraining Random Forest with smiles_to_ECFP ... ')
@@ -137,20 +132,6 @@ if __name__ == '__main__':
     averageF1 = totalF1/max(f1score_per_class)
     print("Average F1 score per class: ",averageF1)
     print("MCC Score: ", mcc_score)
-
-
-    # svm_model = svm_train(x_train, y_train)
-
-
-    #accuracy = accuracy_score(y_test, y_pred)
-    #precision = precision_score(y_test, y_pred, average = 'weighted')
-    #recall = recall_score(y_test, y_pred, average = 'weighted')
-    #f1 = f1_score(y_test, y_pred, average = 'weighted')
-    #print("Accuracy: ", accuracy)
-    #print("Precision: ", precision)
-    #print("Recall: ", recall)
-    #print("F1 Score: ", f1)
-    
 
 
     stop = timeit.default_timer()
