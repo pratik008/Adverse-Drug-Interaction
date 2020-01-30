@@ -141,16 +141,21 @@ class AttentionWithContext(Layer):
         return input_shape[0], input_shape[-1]
 
 
-def model_lstm_atten(embedding_matrix):
+def model_lstm_atten(X_train, y_train):
     inp = Input(shape=(maxlen,))
-    x = Embedding(max_features, embed_size, weights=[embedding_matrix], trainable=False)(inp)
-    x = Bidirectional(CuDNNLSTM(128, return_sequences=True))(x)
-    x = Bidirectional(CuDNNLSTM(64, return_sequences=True))(x)
+    x = Embedding(max_features, embed_size)(inp)
+
+    if tf.test.is_gpu_available():
+        x = Bidirectional(CuDNNLSTM(128, return_sequences=True))(x)
+        x = Bidirectional(CuDNNLSTM(64, return_sequences=True))(x)
+    else:
+        x = Bidirectional(LSTM(128, return_sequences=True))(x)
+        x = Bidirectional(LSTM(64, return_sequences=True))(x)
     x = AttentionWithContext()(x)
     x = Dense(64, activation="relu")(x)
-    x = Dense(1, activation="sigmoid")(x)
+    x = Dense(max(y_train) + 1, activation="softmax")(x)
     model = Model(inputs=inp, outputs=x)
-    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
 
@@ -419,23 +424,31 @@ def model_cnn(X_train, y_train):
 
 
 # BiDirectional LSTM
-def model_lstm_du(embedding_matrix):
+def model_lstm_du(X_train, y_train):
     inp = Input(shape=(maxlen,))
-    x = Embedding(max_features, embed_size, weights=[embedding_matrix])(inp)
+    x = Embedding(max_features, embed_size)(inp)
     '''
     Here 64 is the size(dim) of the hidden state vector as well as the output vector. Keeping return_sequence we want the output for the entire sequence. So what is the dimension of output for this layer?
         64*70(maxlen)*2(bidirection concat)
     CuDNNLSTM is fast implementation of LSTM layer in Keras which only runs on GPU
     '''
-    x = Bidirectional(CuDNNLSTM(64, return_sequences=True))(x)
+
+    if tf.test.is_gpu_available():
+        x = Bidirectional(CuDNNLSTM(64, return_sequences=True))(x)
+    else:
+        x = Bidirectional(LSTM(64, return_sequences=True))(x)
     avg_pool = GlobalAveragePooling1D()(x)
     max_pool = GlobalMaxPooling1D()(x)
     conc = concatenate([avg_pool, max_pool])
     conc = Dense(64, activation="relu")(conc)
     conc = Dropout(0.1)(conc)
-    outp = Dense(1, activation="sigmoid")(conc)
+    outp = Dense(max(y_train) + 1, activation="softmax")(conc)
     model = Model(inputs=inp, outputs=outp)
-    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    print(model.summary())
+
+    model.fit(X_train, y_train, epochs=5, batch_size=128, validation_split=0.2, verbose=2)
+
     return model
 
 

@@ -68,12 +68,8 @@ def main():
     print('Number of test samples : ', len(x_test))
 
 
-
-    y_test[:500]
-
-
-    print('\nTraining cnn_lstm_train Model with tokenized SMILEs Strings ... ')
-    model = model_cnn(x_train, y_train)
+    print('\nTraining model_lstm_du Model with tokenized SMILEs Strings ... ')
+    model = model_lstm_du(x_train, y_train)
 
 
     print('\nPrediction / evaluation of LSTM Model... ')
