@@ -17,7 +17,7 @@ def main():
     print('Drugs read : ', len(drug_list))
 
     print('Generating a list of interactions ...')
-    interaction_list = generate_interactions(drug_list, smiles_dict, 500)
+    interaction_list = generate_interactions(drug_list, smiles_dict)
     print('Interactions found : ', len(interaction_list))
 
     print('Generating relations ...')
@@ -49,7 +49,7 @@ def main():
     print('Finished feature generation. Runtime : ', round((middle - start) / 60, 2), ' minutes')
 
     #rint = random.randint(1, 1000)
-    test_size = 0.5
+    test_size = 0.25
     rint = 42
     x_train, x_test, y_train, y_test = train_test_split(X_label, \
         y_label, test_size = test_size, random_state = rint, \
@@ -85,7 +85,6 @@ def main():
 
     mcc_score = metrics.matthews_corrcoef(y_test, y_pred)
 
-
     totalF1 = 0
     for item in f1score_per_class:
         totalF1 = totalF1 + f1score_per_class[item]
@@ -95,31 +94,7 @@ def main():
     print("Average F1 score per class: ", averageF1)
     print("MCC Score: ", mcc_score)
 
-    print('\nTraining lstm_train Model with tokenized SMILEs Strings ... ')
-    model = lstm_train(x_train, y_train)
 
-    print('\nPrediction / evaluation of LSTM Model... ')
-    y_pred = model.predict(x_test)
-    y_pred = np.argmax(y_pred, axis=1).reshape((y_pred.shape[0], 1))
-    print('shape of y_pred is : ', y_pred.shape)
-
-
-    classes = sorted(list(set(y_test)))
-
-    accuracy_per_class, precision_per_class, recall_per_class, f1score_per_class = \
-        generate_model_report_per_class(y_test, y_pred, classes)
-
-    mcc_score = metrics.matthews_corrcoef(y_test, y_pred)
-
-
-    totalF1 = 0
-    for item in f1score_per_class:
-        totalF1 = totalF1 + f1score_per_class[item]
-        print("F1 score for class ", item, " is : ", f1score_per_class[item])
-
-    averageF1 = totalF1 / max(f1score_per_class)
-    print("Average F1 score per class: ", averageF1)
-    print("MCC Score: ", mcc_score)
 
     print('\nTraining lstm_train_more with 2 layer model ... ')
     model = lstm_train_more(x_train, y_train)

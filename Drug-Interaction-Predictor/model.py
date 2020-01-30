@@ -334,7 +334,7 @@ def lstm_train_more(X_train, y_train):
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     print(model.summary())
 
-    model.fit(X_train, y_train, epochs=5, batch_size=128, validation_split=0.2, verbose=2)
+    model.fit(X_train, y_train, epochs=10, batch_size=128, validation_split=0.2, verbose=2)
 
     return model
 
@@ -378,7 +378,7 @@ def cnn_lstm_train(X_train, y_train):
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     print(model.summary())
 
-    model.fit(X_train, y_train, epochs=5, batch_size=128, validation_split=0.2, verbose=2)
+    model.fit(X_train, y_train, epochs=10, batch_size=128, validation_split=0.2, verbose=2)
 
     return model
 
