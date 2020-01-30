@@ -1,7 +1,5 @@
 import rdkit as rd
 from rdkit import Chem
-#from rdkit.Chem import AllChem
-#import numpy as np
 from collections import Counter
 from gensim.models import word2vec
 from mol2vec_utils import *

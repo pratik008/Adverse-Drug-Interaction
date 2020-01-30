@@ -2,9 +2,9 @@ from read_data import *
 from interaction_labelling import *
 from feature_generation import *
 from model import *
-from helper import *
-from sklearn.model_selection import StratifiedKFold
 import timeit
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
 
 
 def main():
@@ -17,7 +17,7 @@ def main():
     print('Drugs read : ', len(drug_list))
 
     print('Generating a list of interactions ...')
-    interaction_list = generate_interactions(drug_list, smiles_dict)
+    interaction_list = generate_interactions(drug_list, smiles_dict, 500)
     print('Interactions found : ', len(interaction_list))
 
     print('Generating relations ...')

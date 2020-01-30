@@ -2,7 +2,6 @@ import boto3
 import botocore
 import lxml.etree as et
 import xml.etree.ElementTree as ET
-from helper import *
 
 
 # Contains functions to read data from XML file obtained from DrugBank.

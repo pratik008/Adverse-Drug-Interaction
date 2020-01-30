@@ -1,17 +1,13 @@
-from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import svm
-from sklearn.metrics import confusion_matrix
-from sklearn.utils.multiclass import unique_labels
 from sklearn.metrics import f1_score, recall_score, precision_score, accuracy_score
-from sklearn import metrics
-from sklearn.metrics import precision_recall_curve
 import tensorflow as tf
 import numpy as np
-import random
 from keras.models import Sequential
-from keras.layers import Input, Embedding, Activation, Flatten, Dense, LSTM, Bidirectional, CuDNNLSTM
-from keras.layers import Conv1D, MaxPooling1D, Dropout
+from keras.layers import Embedding, Dense, LSTM, Bidirectional, CuDNNLSTM
+from keras.layers import Dropout
+
+#from tensorflow.compat.v1.keras.layers import CuDNNLSTM
 
 # Contains various models and different metrics
 #
@@ -140,16 +136,16 @@ def lstm_train(X_train, y_train):
     model = Sequential()
     model.add(Embedding(input_dim=45, output_dim=embedding_dim, input_length=X_train.shape[1]))
     model.add(Dropout(0.2))
-    model.add(Bidirectional(LSTM(128,activation='tanh',dropout=0.2,recurrent_dropout=0.2)))
+    model.add(Bidirectional(LSTM(64,activation='tanh',dropout=0.2,recurrent_dropout=0.2)))
     #model.add(Bidirectional(CuDNNLSTM(128,return_sequences=True)))
     #model.add(Dropout(0.2))
-    model.add(Dense(128, activation='tanh'))
+    model.add(Dense(64, activation='tanh'))
     model.add(Dropout(0.2))
     model.add(Dense(number_of_labels+1, activation='softmax'))
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     print(model.summary())
 
-    model.fit(X_train, y_train, epochs=5, batch_size=128, validation_split=0.2,verbose=2)
+    model.fit(X_train, y_train, epochs=5, batch_size=128, validation_split=0.2, verbose=2)
 
     return model
 
