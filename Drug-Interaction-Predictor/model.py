@@ -88,19 +88,19 @@ class AttentionWithContext(Layer):
     def build(self, input_shape):
         assert len(input_shape) == 3
 
-        self.W = self.add_weight((input_shape[-1], input_shape[-1],),
+        self.W = self.add_weight(shape=(input_shape[-1], input_shape[-1],),
                                  initializer=self.init,
                                  name='{}_W'.format(self.name),
                                  regularizer=self.W_regularizer,
                                  constraint=self.W_constraint)
         if self.bias:
-            self.b = self.add_weight((input_shape[-1],),
+            self.b = self.add_weight(shape=(input_shape[-1],),
                                      initializer='zero',
                                      name='{}_b'.format(self.name),
                                      regularizer=self.b_regularizer,
                                      constraint=self.b_constraint)
 
-        self.u = self.add_weight((input_shape[-1],),
+        self.u = self.add_weight(shape=(input_shape[-1],),
                                  initializer=self.init,
                                  name='{}_u'.format(self.name),
                                  regularizer=self.u_regularizer,
@@ -156,6 +156,10 @@ def model_lstm_atten(X_train, y_train):
     x = Dense(max(y_train) + 1, activation="softmax")(x)
     model = Model(inputs=inp, outputs=x)
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    print(model.summary())
+
+    model.fit(X_train, y_train, epochs=5, batch_size=128, validation_split=0.2, verbose=2)
+
     return model
 
 
@@ -450,8 +454,6 @@ def model_lstm_du(X_train, y_train):
     model.fit(X_train, y_train, epochs=5, batch_size=128, validation_split=0.2, verbose=2)
 
     return model
-
-
 
 
 

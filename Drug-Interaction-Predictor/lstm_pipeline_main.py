@@ -68,8 +68,8 @@ def main():
     print('Number of test samples : ', len(x_test))
 
 
-    print('\nTraining model_lstm_du Model with tokenized SMILEs Strings ... ')
-    model = model_lstm_du(x_train, y_train)
+    print('\nTraining model_lstm_atten Model with tokenized SMILEs Strings ... ')
+    model = model_lstm_atten(x_train, y_train)
 
 
     print('\nPrediction / evaluation of LSTM Model... ')
