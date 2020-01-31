@@ -5,11 +5,46 @@ from gensim.models import word2vec
 from mol2vec_utils import *
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
+import torch
+from smiles_transformer.pretrain_trfm import TrfmSeq2seq
+from smiles_transformer.build_vocab import WordVocab
+from smiles_transformer.utils import *
 
 
 # File to generate numerical features from smiles data and replace
 # interaction labels by numerical ones
 #
+
+
+
+pad_index = 0
+unk_index = 1
+eos_index = 2
+sos_index = 3
+mask_index = 4
+
+
+def get_inputs(sm):
+    seq_len = 220
+    sm = sm.split()
+    if len(sm) > 218:
+        print('SMILES is too long ({:d})'.format(len(sm)))
+        sm = sm[:109] + sm[-109:]
+    vocab = WordVocab.load_vocab('../data/vocab.pkl')
+    ids = [vocab.stoi.get(token, unk_index) for token in sm]
+    ids = [sos_index] + ids + [eos_index]
+    seg = [1] * len(ids)
+    padding = [pad_index] * (seq_len - len(ids))
+    ids.extend(padding), seg.extend(padding)
+    return ids, seg
+
+def get_array(smiles):
+    x_id, x_seg = [], []
+    for sm in smiles:
+        a, b = get_inputs(sm)
+        x_id.append(a)
+        x_seg.append(b)
+    return torch.tensor(x_id), torch.tensor(x_seg)
 
 
 def smiles_to_ECFP(smiles, model = None, fp_radius = 2):
@@ -169,6 +204,67 @@ def featurize_smiles_and_interactions(relation_list, smiles_feature_generator,
         
 
     return smiles_feature_list, interaction_label_list, drug_pair_list
+
+
+
+def smiles_transformer_tokenize(relation_list,
+     smiles_dict, label_map):
+    '''Generate numerical vectors (tokens) from smiles data and label interactions.
+
+        The dictionary smiles_dict is used to find the SMILEs representations of
+        drugs found in relation_list. subject and object SMILEs strings are concatenated,
+        Keras tokenizer is used to convert the SMILEs string into tokens, and padding is
+        used to standardize the length. The dictionary label_map is used to convert the interaction
+        keywords in relation_list to numerical labels.
+
+
+        Args :
+            relation_list (list): List of Relation instances
+            smiles_dict (dict): Dictionary mapping drug names to SMILES strings.
+            label_map (dict): Dictionary mapping interaction keywords to
+                numerical labels.
+            token_length: Length of each token (Concatenated SMILEs string)
+
+        Returns :
+            X_label: tokenized, concatenated druga SMILEs with Drugb SMILEs. (X)
+            y_label: tokenized label for the interactions. (y)
+        '''
+
+    vocab = WordVocab.load_vocab('../data/vocab.pkl')
+
+    trfm = TrfmSeq2seq(len(vocab), 256, len(vocab), 3)
+    trfm.load_state_dict(torch.load('../save/trfm.pkl', map_location=torch.device('cpu')), strict=False)
+    trfm.eval()
+    print('Total parameters:', sum(p.numel() for p in trfm.parameters()))
+
+
+    smiles_list = []
+    for item in smiles_dict:
+        smiles_list.append(smiles_dict[item])
+
+    trfm_dict = {}
+    x_split = [split(sm) for sm in smiles_list]
+    xid, xseg = get_array(x_split)
+    X = trfm.encode(torch.t(xid))
+    trfm_dict = {}
+
+    i = 0
+    for item in smiles_dict:
+        trfm_dict[item] = X[i]
+        i = i + 1
+
+
+    X_concatenate_smile = []
+    y_label = []
+
+    for relation in relation_list:
+        sub, obj, interaction = relation.get()
+        sub_smiles, obj_smiles = trfm_dict[sub], trfm_dict[obj]
+        interaction_label = label_map[interaction]
+        X_concatenate_smile.append(sub_smiles+obj_smiles)
+        y_label.append(interaction_label)
+
+    return X_concatenate_smile, y_label
 
 
 

@@ -7,9 +7,13 @@ from sklearn.model_selection import train_test_split
 from sklearn import metrics
 
 
+# File to run everything and test functions
+#vocab = WordVocab.load_vocab('../data/vocab.pkl')
+
+# File to run everything and test functions
 
 if __name__ == '__main__':
-    
+
     start = timeit.default_timer()
 
     print('Reading drugs ...')
@@ -18,9 +22,9 @@ if __name__ == '__main__':
     print('Drugs read : ', len(drug_list))
 
     print('Generating a list of interactions ...')
-    interaction_list = generate_interactions(drug_list, smiles_dict,500)
+    interaction_list = generate_interactions(drug_list, smiles_dict)
     print('Interactions found : ', len(interaction_list))
-    
+
     print('Generating relations ...')
     relation_list = generate_relations(interaction_list)
     clean_relation_list, filter_count = filter_unknowns(relation_list)
@@ -34,12 +38,12 @@ if __name__ == '__main__':
     clean_relation_list, filter_count = filter_less_frequent_labels_v2(clean_relation_list, 50)
     print('Relations left : ', len(clean_relation_list))
     print('Pairs filtered : ', filter_count)
-    
+
     # Create the labels from the relation_list
-    label_map, label_lookup = generate_labels(clean_relation_list, save = False)
+    label_map, label_lookup = generate_labels(clean_relation_list, save=False)
 
     cleaning = timeit.default_timer()
-    print('Finished data ingestion and cleaning. Runtime : ', round((cleaning - start)/60, 2), ' minutes')
+    print('Finished data ingestion and cleaning. Runtime : ', round((cleaning - start) / 60, 2), ' minutes')
 
     '''
     smiles_feature_list, interaction_label_list, drug_pair_list = \
@@ -50,27 +54,19 @@ if __name__ == '__main__':
         filter_less_frequent_labels(smiles_feature_list, \
             interaction_label_list, drug_pair_list, 50)'''
 
-
-    # Feature generarion - from SMILEs to ECFP
-    smiles_feature_list, interaction_label_list, drug_pair_list \
-        = featurize_smiles_and_interactions(clean_relation_list, smiles_to_ECFP, smiles_dict, label_map)
+    # Transfer Features - from SMILEs_Transformer
+    X_label, y_label = smiles_transformer_tokenize(clean_relation_list, smiles_dict, label_map)
 
 
     middle = timeit.default_timer()
-    print('Finished feature generation. Runtime : ', round((middle - start)/60, 2), ' minutes')
+    print('Finished feature generation. Runtime : ', round((middle - start) / 60, 2), ' minutes')
 
-    #rint = random.randint(1, 1000)
-    test_size = 0.5
+    # rint = random.randint(1, 1000)
+    test_size = 0.25
     rint = 42
-    x_train, x_test, y_train, y_test = train_test_split(smiles_feature_list, \
-        interaction_label_list, test_size = test_size, random_state = rint, \
-            stratify = interaction_label_list)
-
-    '''
-    z_train, z_test, y_train, y_test = train_test_split(drug_pair_list, \
-        interaction_label_list, test_size = test_size, random_state = rint, \
-            stratify = interaction_label_list)
-    '''
+    x_train, x_test, y_train, y_test = train_test_split(X_label, \
+                                                        y_label, test_size=test_size, random_state=rint, \
+                                                        stratify=y_label)
 
     x_train = np.array(x_train)
     y_train = np.array(y_train)
@@ -82,10 +78,11 @@ if __name__ == '__main__':
     print('Number of training samples : ', len(x_train))
     print('Number of test samples : ', len(x_test))
 
+    print(x_train.shape, y_train.shape, x_test.shape, y_test.shape)
 
-
-    print('\nTraining Random Forest with smiles_to_ECFP ... ')
+    print('\nTraining Random Forest with Transfer Learning ... ')
     model = rf_train(x_train, y_train)
+
 
     print('\nPrediction / Evaluation for Random Forest Model')
     y_pred = model.predict(x_test)
@@ -96,25 +93,23 @@ if __name__ == '__main__':
     accuracy_per_class, precision_per_class, recall_per_class, f1score_per_class = \
         generate_model_report_per_class(y_test, y_pred, classes)
 
-    mcc_score = metrics.matthews_corrcoef(y_test,y_pred)
+    mcc_score = metrics.matthews_corrcoef(y_test, y_pred)
 
     totalF1 = 0
     for item in f1score_per_class:
         totalF1 = totalF1 + f1score_per_class[item]
-        print("F1 score for class ",item," is : ", f1score_per_class[item])
+        print("F1 score for class ", item, " is : ", f1score_per_class[item])
 
-    averageF1 = totalF1/max(f1score_per_class)
-    print("Average F1 score per class: ",averageF1)
+    averageF1 = totalF1 / max(f1score_per_class)
+    print("Average F1 score per class: ", averageF1)
     print("MCC Score: ", mcc_score)
 
-
-
-    print('\nTraining mlp with smiles_to_ECFP... ')
+    print('\nTraining mlp with Transfer Learning... ')
     model = mlp_train(x_train, y_train)
 
     print('\nPrediction / evaluation of mlp Model... ')
     y_pred = model.predict(x_test)
-    y_pred = np.argmax(y_pred, axis = 1).reshape((y_pred.shape[0],1))
+    y_pred = np.argmax(y_pred, axis=1).reshape((y_pred.shape[0], 1))
     print('shape of y_pred is : ', y_pred.shape)
 
     classes = sorted(list(set(y_test)))
@@ -122,20 +117,18 @@ if __name__ == '__main__':
     accuracy_per_class, precision_per_class, recall_per_class, f1score_per_class = \
         generate_model_report_per_class(y_test, y_pred, classes)
 
-    mcc_score = metrics.matthews_corrcoef(y_test,y_pred)
+    mcc_score = metrics.matthews_corrcoef(y_test, y_pred)
 
     totalF1 = 0
     for item in f1score_per_class:
         totalF1 = totalF1 + f1score_per_class[item]
-        print("F1 score for class ",item," is : ", f1score_per_class[item])
+        print("F1 score for class ", item, " is : ", f1score_per_class[item])
 
-    averageF1 = totalF1/max(f1score_per_class)
-    print("Average F1 score per class: ",averageF1)
+    averageF1 = totalF1 / max(f1score_per_class)
+    print("Average F1 score per class: ", averageF1)
     print("MCC Score: ", mcc_score)
 
-
     stop = timeit.default_timer()
-    print('Total runtime: ', round((stop - start)/60, 2), ' minutes')
-    
-    #accuracy, precision, recall, f1 = generate_model_report(model, x_test, y_test)
-    
+    print('Total runtime: ', round((stop - start) / 60, 2), ' minutes')
+
+    # accuracy, precision, recall, f1 = generate_model_report(model, x_test, y_test)

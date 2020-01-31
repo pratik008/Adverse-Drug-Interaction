@@ -98,6 +98,7 @@ def main():
     stop = timeit.default_timer()
     print('Total runtime: ', round((stop - start) / 60, 2), ' minutes')
 
+
 if __name__ == '__main__':
     main()
 
