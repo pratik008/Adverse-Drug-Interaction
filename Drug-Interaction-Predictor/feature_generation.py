@@ -233,7 +233,10 @@ def smiles_transformer_tokenize(relation_list,
     vocab = WordVocab.load_vocab('../data/vocab.pkl')
 
     trfm = TrfmSeq2seq(len(vocab), 256, len(vocab), 3)
-    trfm.load_state_dict(torch.load('../save/trfm.pkl', map_location=torch.device('cpu')), strict=False)
+    if torch.cuda.is_available():
+        trfm.load_state_dict(torch.load('../save/trfm.pkl'), strict=False)
+    else:
+        trfm.load_state_dict(torch.load('../save/trfm.pkl', map_location=torch.device('cpu')), strict=False)
     trfm.eval()
     print('Total parameters:', sum(p.numel() for p in trfm.parameters()))
 
@@ -261,7 +264,8 @@ def smiles_transformer_tokenize(relation_list,
         sub, obj, interaction = relation.get()
         sub_smiles, obj_smiles = trfm_dict[sub], trfm_dict[obj]
         interaction_label = label_map[interaction]
-        X_concatenate_smile.append(sub_smiles+obj_smiles)
+        concat_smiles = np.concatenate((sub_smiles, obj_smiles),axis=0)
+        X_concatenate_smile.append(concat_smiles)
         y_label.append(interaction_label)
 
     return X_concatenate_smile, y_label

@@ -173,7 +173,7 @@ def rf_train(x_train, y_train):
     Returns :
         model (object): Returns an sklearn random forest model trained on the input data
     '''
-    rf_model = RandomForestClassifier(n_estimators = 100, verbose=2)
+    rf_model = RandomForestClassifier(n_estimators = 50, verbose=2)
 
     rf_model.fit(x_train, y_train)
 

@@ -62,7 +62,7 @@ if __name__ == '__main__':
     print('Finished feature generation. Runtime : ', round((middle - start) / 60, 2), ' minutes')
 
     # rint = random.randint(1, 1000)
-    test_size = 0.25
+    test_size = 0.60
     rint = 42
     x_train, x_test, y_train, y_test = train_test_split(X_label, \
                                                         y_label, test_size=test_size, random_state=rint, \
