@@ -19,8 +19,8 @@ if __name__ == '__main__':
 
     print('Reading drugs ...')
     # import XML Data - From link source
-    drug_list, smiles_dict = read_from_file('../data/sample/drug_split11.xml')
-    #drug_list, smiles_dict = read_from_file('../data/sample/full_database.xml')
+    #drug_list, smiles_dict = read_from_file('../data/sample/drug_split11.xml')
+    drug_list, smiles_dict = read_from_file('../data/sample/full_database.xml')
     print('Drugs read : ', len(drug_list))
 
     print('Generating a list of interactions ...')
@@ -80,14 +80,14 @@ if __name__ == '__main__':
     traintest = timeit.default_timer()
     print('Finished train test split. Runtime : ', round((traintest - start) / 60, 2), ' minutes')
 
-
+    #train_and_evaluate(x_train, y_train, x_test, y_test, rf_train)
     train_and_evaluate(x_train, y_train, x_test, y_test, mlp_train)
-    train_and_evaluate(x_train, y_train, x_test, y_test, lstm_train)
-    train_and_evaluate(x_train, y_train, x_test, y_test, lstm_train_more)
-    train_and_evaluate(x_train, y_train, x_test, y_test, cnn_lstm_train)
-    train_and_evaluate(x_train, y_train, x_test, y_test, model_cnn)
-    train_and_evaluate(x_train, y_train, x_test, y_test, model_lstm_du)
-    train_and_evaluate(x_train, y_train, x_test, y_test, model_lstm_atten)
+    #train_and_evaluate(x_train, y_train, x_test, y_test, lstm_transfer)
+    #train_and_evaluate(x_train, y_train, x_test, y_test, lstm_2layer_transfer)
+    #train_and_evaluate(x_train, y_train, x_test, y_test, cnn_lstm_transfer)
+    #train_and_evaluate(x_train, y_train, x_test, y_test, model_cnn)
+    #train_and_evaluate(x_train, y_train, x_test, y_test, model_lstm_du)
+    #train_and_evaluate(x_train, y_train, x_test, y_test, model_lstm_atten)
 
 
     '''

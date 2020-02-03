@@ -75,12 +75,11 @@ def main():
 
     train_and_evaluate(x_train, y_train, x_test, y_test, mlp_train)
     train_and_evaluate(x_train, y_train, x_test, y_test, lstm_train)
-    train_and_evaluate(x_train, y_train, x_test, y_test, lstm_train_more)
+    train_and_evaluate(x_train, y_train, x_test, y_test, lstm_2layer_train)
     train_and_evaluate(x_train, y_train, x_test, y_test, cnn_lstm_train)
     train_and_evaluate(x_train, y_train, x_test, y_test, model_cnn)
     train_and_evaluate(x_train, y_train, x_test, y_test, model_lstm_du)
     train_and_evaluate(x_train, y_train, x_test, y_test, model_lstm_atten)
-
 
     stop = timeit.default_timer()
     print('Total runtime: ', round((stop - start) / 60, 2), ' minutes')

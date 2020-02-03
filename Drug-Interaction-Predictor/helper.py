@@ -87,8 +87,13 @@ def train_and_evaluate(x_train, y_train, x_test, y_test, model_name, epochs=5):
     #### Training a Model
     print('\nTraining model {0} with {1:2d} training samples!'.format(model_name, x_train.shape[0]))
     model = model_name(x_train, y_train)
+    #print(model.summary())
+
+    #x_train = x_train.reshape((x_train.shape[0], 1, x_train.shape[1]))
+    #x_test = x_test.reshape((x_test.shape[0], 1, x_test.shape[1]))
+
     model.fit(x_train, y_train, epochs=epochs, batch_size=128, validation_split=0.2, verbose=2)
-    #print(model.summary)
+    print(model.summary())
 
     #### Evaluate the model
     print('\nPrediction / evaluation of mlp Model... ')

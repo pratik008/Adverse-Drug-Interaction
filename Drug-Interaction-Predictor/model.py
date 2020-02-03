@@ -4,7 +4,7 @@ from sklearn.metrics import f1_score, recall_score, precision_score, accuracy_sc
 import tensorflow as tf
 import numpy as np
 from keras.models import Sequential
-from keras.layers import Embedding, Dense, LSTM, Bidirectional, CuDNNLSTM, Conv1D, MaxPooling1D
+from keras.layers import Embedding, Dense, LSTM, Bidirectional, CuDNNLSTM, Conv1D, MaxPooling1D, GRU
 from keras.layers import Dense, Input, CuDNNLSTM, Embedding, Dropout, Activation, CuDNNGRU, Conv1D
 from keras.layers import Bidirectional, GlobalMaxPool1D, GlobalMaxPooling1D, GlobalAveragePooling1D
 from keras.layers import Input, Embedding, Dense, Conv2D, MaxPool2D, concatenate
@@ -28,6 +28,51 @@ maxlen = 512
 max_features = 46
 embed_size = 64
 
+
+def rf_train(x_train, y_train):
+    '''Build and train a random forest
+
+    Args :
+        x_train (numpy.ndarray): Features for training
+        y_train (numpy.ndarray): Classification labels for training
+
+    Returns :
+        model (object): Returns an sklearn random forest model trained on the input data
+    '''
+    rf_model = RandomForestClassifier(n_estimators = 50, verbose=2)
+
+    rf_model.fit(x_train, y_train)
+
+    return rf_model
+
+
+def svm_train(x_train, y_train):
+    '''Build and train an svm
+
+    Args :
+        x_train (numpy.ndarray): Features for training
+        y_train (numpy.ndarray): Classification labels for training
+
+    Returns :
+        model (object): Returns an sklearn svm model fit on the input data
+    '''
+    svm_model = svm.SVC()
+
+    svm_model.fit(x_train, y_train)
+
+    return svm_model
+
+class my_callback(tf.keras.callbacks.Callback):
+    '''Callback class for Keras model'''
+    print("Inside my callback")
+    pass
+    #def on_epoch_end(self, epoch, logs = {}):
+        #pass
+        #if logs.get('acc') > 0.99:
+            #print("\nReached 100% accuracy. Stopping training...")
+            #self.model.stop_training = True
+
+
 def dot_product(x, kernel):
     """
     Wrapper for dot product operation, in order to be compatible with both
@@ -41,6 +86,346 @@ def dot_product(x, kernel):
         return K.squeeze(K.dot(x, K.expand_dims(kernel)), axis=-1)
     else:
         return K.dot(x, kernel)
+
+
+
+def mlp_train(x_train, y_train):
+    '''Build and train a multilayer perceptron model
+
+    Args :
+        x_train (numpy.ndarray): Features for training
+        y_train (numpy.ndarray): Classification labels for training
+
+    Returns :
+        model (object): Returns a Keras neural network fit on the input data
+    '''
+    #callbacks = my_callback()
+
+    #x_train = np.array(x_train).astype('float')
+    print('Data type of train data : ', x_train.dtype)
+    #y_train = np.array(y_train)#.astype(float)
+    number_of_features = x_train.shape[1]
+    number_of_labels = max(set(y_train))
+    print('Number of features : ', number_of_features)
+    print('Number of classification labels : ', len(set(y_train)))
+    print('Shape of y_train', y_train.shape)
+    y_train = np.reshape(y_train, (-1, 1))
+    print('Shape of x_train : ', x_train.shape)
+    print('Shape of y_train', y_train.shape)
+    #print(y_train[:10])
+
+    model = Sequential()
+    model.add(Dense(units=number_of_features, activation='relu'))
+    #model.add(Dropout(0.2))
+    model.add(Dense(units=number_of_features, activation='relu'))
+    #model.add(Dropout(0.2))
+    model.add(Dense(units=number_of_features, activation='relu'))
+    #model.add(Dropout(0.2))
+    model.add(Dense(units=number_of_features//4, activation='relu'))
+    #model.add(Dropout(0.2))
+    model.add(Dense(units=number_of_features//32, activation='relu'))
+    #model.add(Dropout(0.2))
+    model.add(Dense(units=number_of_labels+1, activation='softmax'))
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+    return model
+
+def lstm_transfer(X_train, y_train):
+    '''Build and train a multilayer perceptron model
+
+    Args :
+        x_train (numpy.ndarray): Features for training
+        y_train (numpy.ndarray): Classification labels for training
+
+    Returns :
+        model (object): Returns a Keras neural network fit on the input data
+    '''
+    #callbacks = my_callback()
+
+    #print('Data type of train data : ', X_train.dtype)
+    number_of_features = X_train.shape[1]
+    number_of_labels = max(set(y_train))
+    #print('Number of features : ', number_of_features)
+    #print('Number of classification labels : ', len(set(y_train)))
+    #y_train = np.reshape(y_train, (-1, 1))
+    #print('Shape of x_train : ', X_train.shape)
+    #print('Shape of y_train', y_train.shape)
+    embedding_dim = 64
+
+    print('x_train shape : {} '.format(X_train.shape))
+
+    X_train = X_train.reshape((X_train.shape[0], 1, X_train.shape[1]))
+    #y_train = y_train.reshape((1, y_train.shape[0]))
+
+    print('x_train shape : {} '.format(X_train.shape))
+
+
+    model = Sequential()
+    #model.add(Embedding(input_dim=200, output_dim=embedding_dim, input_length=X_train.shape[1]))
+    #model.add(Dropout(0.2))
+    if tf.test.is_gpu_available():
+        print("Found GPU - Training with CuDNNLSTM")
+        model.add(Bidirectional(CuDNNLSTM(64, return_sequences=False),input_shape=(X_train.shape[1:])))
+        model.add(Dropout(0.2))
+    else:
+        print("GPU not found : Training with LSTM ")
+        model.add(Bidirectional(LSTM(64, activation='tanh',dropout=0.2,recurrent_dropout=0.2 ),input_shape=(X_train.shape[1:])))
+    model.add(Dense(64, activation='tanh'))
+    model.add(Dropout(0.2))
+    model.add(Dense(number_of_labels+1, activation='softmax'))
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    #print(model.summary())
+
+    return model
+
+
+def lstm_train(X_train, y_train):
+    '''Build and train a multilayer perceptron model
+
+    Args :
+        x_train (numpy.ndarray): Features for training
+        y_train (numpy.ndarray): Classification labels for training
+
+    Returns :
+        model (object): Returns a Keras neural network fit on the input data
+    '''
+    #callbacks = my_callback()
+
+    #print('Data type of train data : ', X_train.dtype)
+    number_of_features = X_train.shape[1]
+    number_of_labels = max(set(y_train))
+    #print('Number of features : ', number_of_features)
+    #print('Number of classification labels : ', len(set(y_train)))
+    #y_train = np.reshape(y_train, (-1, 1))
+    #print('Shape of x_train : ', X_train.shape)
+    #print('Shape of y_train', y_train.shape)
+    embedding_dim = 64
+    #print(y_train[:10])
+
+    print(X_train[0:500])
+    print(X_train.min, X_train.max)
+
+    #print('X_train[1].shape : ',X_train.shape[1])
+
+    model = Sequential()
+    model.add(Embedding(input_dim=200, output_dim=embedding_dim, input_length=X_train.shape[1]))
+    model.add(Dropout(0.2))
+    if tf.test.is_gpu_available():
+        print("Found GPU - Training with CuDNNLSTM")
+        model.add(Bidirectional(CuDNNLSTM(64, return_sequences=False)))
+        model.add(Dropout(0.2))
+    else:
+        print("GPU not found : Training with LSTM")
+        model.add(Bidirectional(LSTM(64,activation='tanh',dropout=0.2,recurrent_dropout=0.2)))
+    model.add(Dense(64, activation='tanh'))
+    model.add(Dropout(0.2))
+    model.add(Dense(number_of_labels+1, activation='softmax'))
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+    return model
+
+def lstm_2layer_transfer(X_train, y_train):
+    '''Build and train a multilayer perceptron model
+
+    Args :
+        x_train (numpy.ndarray): Features for training
+        y_train (numpy.ndarray): Classification labels for training
+
+    Returns :
+        model (object): Returns a Keras neural network fit on the input data
+    '''
+    #callbacks = my_callback()
+
+    print('Data type of train data : ', X_train.dtype)
+    number_of_features = X_train.shape[1]
+    number_of_labels = max(set(y_train))
+    print('Number of features : ', number_of_features)
+    print('Number of classification labels : ', len(set(y_train)))
+    #y_train = np.reshape(y_train, (-1, 1))
+    print('Shape of x_train : ', X_train.shape)
+    print('Shape of y_train', y_train.shape)
+    embedding_dim = 64
+    #print(y_train[:10])
+
+    print('x_train shape : {} '.format(X_train.shape))
+
+    X_train = X_train.reshape((X_train.shape[0], 1, X_train.shape[1]))
+    # y_train = y_train.reshape((1, y_train.shape[0]))
+
+    print('x_train shape : {} '.format(X_train.shape))
+
+
+    model = Sequential()
+    #model.add(Embedding(input_dim=46, output_dim=embedding_dim, input_length=X_train.shape[1]))
+    #model.add(Dropout(0.2))
+    if tf.test.is_gpu_available():
+        print("Found GPU - Training with CuDNNLSTM")
+        model.add(Bidirectional(CuDNNLSTM(128, return_sequences=True),input_shape=X_train.shape[1:]))
+        model.add(Dropout(0.2))
+        model.add(Bidirectional(CuDNNLSTM(64, return_sequences=False)))
+        model.add(Dropout(0.2))
+    else:
+        print("GPU not found : Training with LSTM")
+        model.add(Bidirectional(LSTM(64, activation='tanh', dropout=0.2, recurrent_dropout=0.2, return_sequences=True),input_shape=X_train.shape[1:]))
+        model.add(Bidirectional(LSTM(64, activation='tanh', dropout=0.2, recurrent_dropout=0.2, return_sequences=False)))
+    model.add(Dense(64, activation='tanh'))
+    model.add(Dropout(0.2))
+    model.add(Dense(number_of_labels+1, activation='softmax'))
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+    return model
+
+
+def lstm_2layer_train(X_train, y_train):
+    '''Build and train a multilayer perceptron model
+
+    Args :
+        x_train (numpy.ndarray): Features for training
+        y_train (numpy.ndarray): Classification labels for training
+
+    Returns :
+        model (object): Returns a Keras neural network fit on the input data
+    '''
+    #callbacks = my_callback()
+
+    print('Data type of train data : ', X_train.dtype)
+    number_of_features = X_train.shape[1]
+    number_of_labels = max(set(y_train))
+    print('Number of features : ', number_of_features)
+    print('Number of classification labels : ', len(set(y_train)))
+    #y_train = np.reshape(y_train, (-1, 1))
+    print('Shape of x_train : ', X_train.shape)
+    print('Shape of y_train', y_train.shape)
+    embedding_dim = 64
+    #print(y_train[:10])
+
+
+    print('X_train[1].shape : ', X_train.shape[1])
+
+    model = Sequential()
+    model.add(Embedding(input_dim=46, output_dim=embedding_dim, input_length=X_train.shape[1]))
+    model.add(Dropout(0.2))
+    if tf.test.is_gpu_available():
+        print("Found GPU - Training with CuDNNLSTM")
+        model.add(Bidirectional(CuDNNLSTM(128, return_sequences=True)))
+        model.add(Dropout(0.2))
+        model.add(Bidirectional(CuDNNLSTM(64, return_sequences=False)))
+        model.add(Dropout(0.2))
+    else:
+        print("GPU not found : Training with LSTM")
+        model.add(Bidirectional(LSTM(64, activation='tanh', dropout=0.2, recurrent_dropout=0.2, return_sequences=True)))
+        model.add(Bidirectional(LSTM(64, activation='tanh', dropout=0.2, recurrent_dropout=0.2, return_sequences=False)))
+    model.add(Dense(64, activation='tanh'))
+    model.add(Dropout(0.2))
+    model.add(Dense(number_of_labels+1, activation='softmax'))
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+
+    return model
+
+
+def cnn_lstm_train(X_train, y_train):
+    '''Build and train a multilayer perceptron model
+
+    Args :
+        x_train (numpy.ndarray): Features for training
+        y_train (numpy.ndarray): Classification labels for training
+
+    Returns :
+        model (object): Returns a Keras neural network fit on the input data
+    '''
+    # callbacks = my_callback()
+
+    print('Data type of train data : ', X_train.dtype)
+    number_of_features = X_train.shape[1]
+    number_of_labels = max(set(y_train))
+    print('Number of features : ', number_of_features)
+    print('Number of classification labels : ', len(set(y_train)))
+    # y_train = np.reshape(y_train, (-1, 1))
+    print('Shape of x_train : ', X_train.shape)
+    print('Shape of y_train', y_train.shape)
+    embedding_dim = 64
+    # print(y_train[:10])
+
+    print('X_train[1].shape : ', X_train.shape[1])
+
+    model = Sequential()
+    model.add(Embedding(input_dim=46, output_dim=embedding_dim, input_length=X_train.shape[1]))
+    model.add(Dropout(0.2))
+    model.add(Conv1D(64, 5, activation='tanh'))
+    model.add(MaxPooling1D(pool_size=8))
+    if tf.test.is_gpu_available():
+        print("Found GPU - Training with CuDNNLSTM")
+        model.add(Bidirectional(CuDNNLSTM(64, return_sequences=False)))
+        model.add(Dropout(0.2))
+    else:
+        print("GPU not found : Training with LSTM")
+        model.add(Bidirectional(LSTM(64,activation='tanh',dropout=0.2,recurrent_dropout=0.2)))
+    model.add(Dense(number_of_labels + 1, activation='softmax'))
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+
+    return model
+
+
+# https://www.kaggle.com/yekenot/2dcnn-textclassifier
+
+def model_cnn(X_train, y_train):
+
+    filter_sizes = [1, 2, 3, 5]
+    num_filters = 36
+
+    inp = Input(shape=(maxlen,))
+    x = Embedding(max_features, embed_size)(inp)
+    x = Reshape((maxlen, embed_size, 1))(x)
+
+    maxpool_pool = []
+    for i in range(len(filter_sizes)):
+        conv = Conv2D(num_filters, kernel_size=(filter_sizes[i], embed_size),
+                      kernel_initializer='he_normal', activation='relu')(x)
+        maxpool_pool.append(MaxPool2D(pool_size=(maxlen - filter_sizes[i] + 1, 1))(conv))
+
+    z = Concatenate(axis=1)(maxpool_pool)
+    z = Flatten()(z)
+    z = Dropout(0.1)(z)
+
+    outp = Dense(max(y_train) + 1, activation="softmax")(z)
+
+    model = Model(inputs=inp, outputs=outp)
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+
+    return model
+
+
+# BiDirectional LSTM
+def model_lstm_du(X_train, y_train):
+    inp = Input(shape=(maxlen,))
+    x = Embedding(max_features, embed_size)(inp)
+    '''
+    Here 64 is the size(dim) of the hidden state vector as well as the output vector. Keeping return_sequence we want the output for the entire sequence. So what is the dimension of output for this layer?
+        64*70(maxlen)*2(bidirection concat)
+    CuDNNLSTM is fast implementation of LSTM layer in Keras which only runs on GPU
+    '''
+
+    if tf.test.is_gpu_available():
+        print("Found GPU - Training with CuDNNLSTM")
+        x = Bidirectional(CuDNNLSTM(64, return_sequences=True))(x)
+    else:
+        print("GPU not found : Training with LSTM")
+        x = Bidirectional(LSTM(64, return_sequences=True))(x)
+    avg_pool = GlobalAveragePooling1D()(x)
+    max_pool = GlobalMaxPooling1D()(x)
+    conc = concatenate([avg_pool, max_pool])
+    conc = Dense(64, activation="relu")(conc)
+    conc = Dropout(0.1)(conc)
+    outp = Dense(max(y_train) + 1, activation="softmax")(conc)
+    model = Model(inputs=inp, outputs=outp)
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+
+    return model
+
 
 
 #https://www.kaggle.com/mlwhiz/attention-pytorch-and-keras
@@ -146,9 +531,11 @@ def model_lstm_atten(X_train, y_train):
     x = Embedding(max_features, embed_size)(inp)
 
     if tf.test.is_gpu_available():
+        print("Found GPU - Training with CuDNNLSTM")
         x = Bidirectional(CuDNNLSTM(128, return_sequences=True))(x)
         x = Bidirectional(CuDNNLSTM(64, return_sequences=True))(x)
     else:
+        print("GPU not found : Training with LSTM")
         x = Bidirectional(LSTM(128, return_sequences=True))(x)
         x = Bidirectional(LSTM(64, return_sequences=True))(x)
     x = AttentionWithContext()(x)
@@ -156,285 +543,6 @@ def model_lstm_atten(X_train, y_train):
     x = Dense(max(y_train) + 1, activation="softmax")(x)
     model = Model(inputs=inp, outputs=x)
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-    print(model.summary())
-
-    return model
-
-
-def rf_train(x_train, y_train):
-    '''Build and train a random forest
-
-    Args :
-        x_train (numpy.ndarray): Features for training
-        y_train (numpy.ndarray): Classification labels for training
-
-    Returns :
-        model (object): Returns an sklearn random forest model trained on the input data
-    '''
-    rf_model = RandomForestClassifier(n_estimators = 50, verbose=2)
-
-    rf_model.fit(x_train, y_train)
-
-    return rf_model
-
-
-def svm_train(x_train, y_train):
-    '''Build and train an svm
-
-    Args :
-        x_train (numpy.ndarray): Features for training
-        y_train (numpy.ndarray): Classification labels for training
-
-    Returns :
-        model (object): Returns an sklearn svm model fit on the input data
-    '''
-    svm_model = svm.SVC()
-
-    svm_model.fit(x_train, y_train)
-
-    return svm_model
-
-class my_callback(tf.keras.callbacks.Callback):
-    '''Callback class for Keras model'''
-    print("Inside my callback")
-    pass
-    #def on_epoch_end(self, epoch, logs = {}):
-        #pass
-        #if logs.get('acc') > 0.99:
-            #print("\nReached 100% accuracy. Stopping training...")
-            #self.model.stop_training = True
-
-def mlp_train(x_train, y_train):
-    '''Build and train a multilayer perceptron model
-
-    Args :
-        x_train (numpy.ndarray): Features for training
-        y_train (numpy.ndarray): Classification labels for training
-
-    Returns :
-        model (object): Returns a Keras neural network fit on the input data
-    '''
-    #callbacks = my_callback()
-
-    #x_train = np.array(x_train).astype('float')
-    print('Data type of train data : ', x_train.dtype)
-    #y_train = np.array(y_train)#.astype(float)
-    number_of_features = x_train.shape[1]
-    number_of_labels = max(set(y_train))
-    print('Number of features : ', number_of_features)
-    print('Number of classification labels : ', len(set(y_train)))
-    print('Shape of y_train', y_train.shape)
-    y_train = np.reshape(y_train, (-1, 1))
-    print('Shape of x_train : ', x_train.shape)
-    print('Shape of y_train', y_train.shape)
-    #print(y_train[:10])
-
-    model = Sequential()
-    model.add(Dense(units=number_of_features, activation='relu'))
-    model.add(Dropout(0.2))
-    model.add(Dense(units=number_of_features, activation='relu'))
-    model.add(Dropout(0.2))
-    model.add(Dense(units=number_of_features, activation='relu'))
-    model.add(Dropout(0.2))
-    model.add(Dense(units=number_of_features//4, activation='relu'))
-    model.add(Dropout(0.2))
-    model.add(Dense(units=number_of_features//32, activation='relu'))
-    model.add(Dropout(0.2))
-    model.add(Dense(units=number_of_labels+1, activation='softmax'))
-    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-    #print(model.summary())
-
-    return model
-
-def lstm_train(X_train, y_train):
-    '''Build and train a multilayer perceptron model
-
-    Args :
-        x_train (numpy.ndarray): Features for training
-        y_train (numpy.ndarray): Classification labels for training
-
-    Returns :
-        model (object): Returns a Keras neural network fit on the input data
-    '''
-    #callbacks = my_callback()
-
-    #print('Data type of train data : ', X_train.dtype)
-    number_of_features = X_train.shape[1]
-    number_of_labels = max(set(y_train))
-    #print('Number of features : ', number_of_features)
-    #print('Number of classification labels : ', len(set(y_train)))
-    #y_train = np.reshape(y_train, (-1, 1))
-    #print('Shape of x_train : ', X_train.shape)
-    #print('Shape of y_train', y_train.shape)
-    embedding_dim = 64
-    #print(y_train[:10])
-
-    print(X_train[0:500])
-    print(X_train.min, X_train.max)
-
-    #print('X_train[1].shape : ',X_train.shape[1])
-
-    model = Sequential()
-    model.add(Embedding(input_dim=200, output_dim=embedding_dim, input_length=X_train.shape[1]))
-    model.add(Dropout(0.2))
-    if tf.test.is_gpu_available():
-        model.add(Bidirectional(CuDNNLSTM(64, return_sequences=False)))
-        model.add(Dropout(0.2))
-    else:
-        model.add(Bidirectional(LSTM(64,activation='tanh',dropout=0.2,recurrent_dropout=0.2)))
-    model.add(Dense(64, activation='tanh'))
-    model.add(Dropout(0.2))
-    model.add(Dense(number_of_labels+1, activation='softmax'))
-    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-    print(model.summary())
-
-    return model
-
-
-def lstm_train_more(X_train, y_train):
-    '''Build and train a multilayer perceptron model
-
-    Args :
-        x_train (numpy.ndarray): Features for training
-        y_train (numpy.ndarray): Classification labels for training
-
-    Returns :
-        model (object): Returns a Keras neural network fit on the input data
-    '''
-    #callbacks = my_callback()
-
-    print('Data type of train data : ', X_train.dtype)
-    number_of_features = X_train.shape[1]
-    number_of_labels = max(set(y_train))
-    print('Number of features : ', number_of_features)
-    print('Number of classification labels : ', len(set(y_train)))
-    #y_train = np.reshape(y_train, (-1, 1))
-    print('Shape of x_train : ', X_train.shape)
-    print('Shape of y_train', y_train.shape)
-    embedding_dim = 64
-    #print(y_train[:10])
-
-
-    print('X_train[1].shape : ', X_train.shape[1])
-
-    model = Sequential()
-    model.add(Embedding(input_dim=46, output_dim=embedding_dim, input_length=X_train.shape[1]))
-    model.add(Dropout(0.2))
-    if tf.test.is_gpu_available():
-        model.add(Bidirectional(CuDNNLSTM(128, return_sequences=True)))
-        model.add(Dropout(0.2))
-        model.add(Bidirectional(CuDNNLSTM(64, return_sequences=False)))
-        model.add(Dropout(0.2))
-    else:
-        model.add(Bidirectional(LSTM(64, activation='tanh', dropout=0.2, recurrent_dropout=0.2, return_sequences=True)))
-        model.add(Bidirectional(LSTM(64, activation='tanh', dropout=0.2, recurrent_dropout=0.2, return_sequences=False)))
-    model.add(Dense(64, activation='tanh'))
-    model.add(Dropout(0.2))
-    model.add(Dense(number_of_labels+1, activation='softmax'))
-    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-    print(model.summary())
-
-    return model
-
-
-def cnn_lstm_train(X_train, y_train):
-    '''Build and train a multilayer perceptron model
-
-    Args :
-        x_train (numpy.ndarray): Features for training
-        y_train (numpy.ndarray): Classification labels for training
-
-    Returns :
-        model (object): Returns a Keras neural network fit on the input data
-    '''
-    # callbacks = my_callback()
-
-    print('Data type of train data : ', X_train.dtype)
-    number_of_features = X_train.shape[1]
-    number_of_labels = max(set(y_train))
-    print('Number of features : ', number_of_features)
-    print('Number of classification labels : ', len(set(y_train)))
-    # y_train = np.reshape(y_train, (-1, 1))
-    print('Shape of x_train : ', X_train.shape)
-    print('Shape of y_train', y_train.shape)
-    embedding_dim = 64
-    # print(y_train[:10])
-
-    print('X_train[1].shape : ', X_train.shape[1])
-
-    model = Sequential()
-    model.add(Embedding(input_dim=46, output_dim=embedding_dim, input_length=X_train.shape[1]))
-    model.add(Dropout(0.2))
-    model.add(Conv1D(64, 5, activation='tanh'))
-    model.add(MaxPooling1D(pool_size=8))
-    if tf.test.is_gpu_available():
-        model.add(Bidirectional(CuDNNLSTM(64, return_sequences=False)))
-        model.add(Dropout(0.2))
-    else:
-        model.add(Bidirectional(LSTM(64,activation='tanh',dropout=0.2,recurrent_dropout=0.2)))
-    model.add(Dense(number_of_labels + 1, activation='softmax'))
-    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-    print(model.summary())
-
-
-    return model
-
-
-# https://www.kaggle.com/yekenot/2dcnn-textclassifier
-
-def model_cnn(X_train, y_train):
-
-    filter_sizes = [1, 2, 3, 5]
-    num_filters = 36
-
-    inp = Input(shape=(maxlen,))
-    x = Embedding(max_features, embed_size)(inp)
-    x = Reshape((maxlen, embed_size, 1))(x)
-
-    maxpool_pool = []
-    for i in range(len(filter_sizes)):
-        conv = Conv2D(num_filters, kernel_size=(filter_sizes[i], embed_size),
-                      kernel_initializer='he_normal', activation='relu')(x)
-        maxpool_pool.append(MaxPool2D(pool_size=(maxlen - filter_sizes[i] + 1, 1))(conv))
-
-    z = Concatenate(axis=1)(maxpool_pool)
-    z = Flatten()(z)
-    z = Dropout(0.1)(z)
-
-    outp = Dense(max(y_train) + 1, activation="softmax")(z)
-
-    model = Model(inputs=inp, outputs=outp)
-    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-
-    print(model.summary())
-
-    return model
-
-
-# BiDirectional LSTM
-def model_lstm_du(X_train, y_train):
-    inp = Input(shape=(maxlen,))
-    x = Embedding(max_features, embed_size)(inp)
-    '''
-    Here 64 is the size(dim) of the hidden state vector as well as the output vector. Keeping return_sequence we want the output for the entire sequence. So what is the dimension of output for this layer?
-        64*70(maxlen)*2(bidirection concat)
-    CuDNNLSTM is fast implementation of LSTM layer in Keras which only runs on GPU
-    '''
-
-    if tf.test.is_gpu_available():
-        x = Bidirectional(CuDNNLSTM(64, return_sequences=True))(x)
-    else:
-        x = Bidirectional(LSTM(64, return_sequences=True))(x)
-    avg_pool = GlobalAveragePooling1D()(x)
-    max_pool = GlobalMaxPooling1D()(x)
-    conc = concatenate([avg_pool, max_pool])
-    conc = Dense(64, activation="relu")(conc)
-    conc = Dropout(0.1)(conc)
-    outp = Dense(max(y_train) + 1, activation="softmax")(conc)
-    model = Model(inputs=inp, outputs=outp)
-    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-    print(model.summary())
-
 
     return model
 
