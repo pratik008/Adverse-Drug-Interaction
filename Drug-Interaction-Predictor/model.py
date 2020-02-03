@@ -158,8 +158,6 @@ def model_lstm_atten(X_train, y_train):
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     print(model.summary())
 
-    model.fit(X_train, y_train, epochs=5, batch_size=128, validation_split=0.2, verbose=2)
-
     return model
 
 
@@ -244,16 +242,7 @@ def mlp_train(x_train, y_train):
     model.add(Dropout(0.2))
     model.add(Dense(units=number_of_labels+1, activation='softmax'))
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-
-    history = model.fit(x_train,
-                        y_train,
-                        batch_size = 64,
-                        epochs = 8,
-                        validation_split = 0.2
-                        ,verbose = 2)
-                        #,callbacks = [callbacks])
-
-    print(model.summary())
+    #print(model.summary())
 
     return model
 
@@ -269,22 +258,24 @@ def lstm_train(X_train, y_train):
     '''
     #callbacks = my_callback()
 
-    print('Data type of train data : ', X_train.dtype)
+    #print('Data type of train data : ', X_train.dtype)
     number_of_features = X_train.shape[1]
     number_of_labels = max(set(y_train))
-    print('Number of features : ', number_of_features)
-    print('Number of classification labels : ', len(set(y_train)))
+    #print('Number of features : ', number_of_features)
+    #print('Number of classification labels : ', len(set(y_train)))
     #y_train = np.reshape(y_train, (-1, 1))
-    print('Shape of x_train : ', X_train.shape)
-    print('Shape of y_train', y_train.shape)
+    #print('Shape of x_train : ', X_train.shape)
+    #print('Shape of y_train', y_train.shape)
     embedding_dim = 64
     #print(y_train[:10])
 
+    print(X_train[0:500])
+    print(X_train.min, X_train.max)
 
-    print('X_train[1].shape : ',X_train.shape[1])
+    #print('X_train[1].shape : ',X_train.shape[1])
 
     model = Sequential()
-    model.add(Embedding(input_dim=46, output_dim=embedding_dim, input_length=X_train.shape[1]))
+    model.add(Embedding(input_dim=200, output_dim=embedding_dim, input_length=X_train.shape[1]))
     model.add(Dropout(0.2))
     if tf.test.is_gpu_available():
         model.add(Bidirectional(CuDNNLSTM(64, return_sequences=False)))
@@ -296,8 +287,6 @@ def lstm_train(X_train, y_train):
     model.add(Dense(number_of_labels+1, activation='softmax'))
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     print(model.summary())
-
-    model.fit(X_train, y_train, epochs=5, batch_size=128, validation_split=0.2, verbose=2)
 
     return model
 
@@ -345,8 +334,6 @@ def lstm_train_more(X_train, y_train):
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     print(model.summary())
 
-    model.fit(X_train, y_train, epochs=10, batch_size=128, validation_split=0.2, verbose=2)
-
     return model
 
 
@@ -389,7 +376,6 @@ def cnn_lstm_train(X_train, y_train):
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     print(model.summary())
 
-    model.fit(X_train, y_train, epochs=10, batch_size=128, validation_split=0.2, verbose=2)
 
     return model
 
@@ -422,8 +408,6 @@ def model_cnn(X_train, y_train):
 
     print(model.summary())
 
-    model.fit(X_train, y_train, epochs=5, batch_size=128, validation_split=0.2, verbose=2)
-
     return model
 
 
@@ -451,7 +435,6 @@ def model_lstm_du(X_train, y_train):
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     print(model.summary())
 
-    model.fit(X_train, y_train, epochs=5, batch_size=128, validation_split=0.2, verbose=2)
 
     return model
 

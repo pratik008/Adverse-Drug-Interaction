@@ -134,14 +134,15 @@ def tokenize_smiles_and_interactions(relation_list,
         X_concatenate_smile.append(sub_smiles[:int(token_length/2)]+obj_smiles[:int(token_length/2)])
         y_label.append(interaction_label)
 
-
-    # ==============Tokenizer - Convert string to index================
+    # ==============Tokenizer - Convert SMILEs Charcaters to index================
     tk = Tokenizer(num_words=None, char_level=True, oov_token='UNK')
     tk.fit_on_texts(X_concatenate_smile)
-
+    print(tk.index_word)
     smile_seq = tk.texts_to_sequences(X_concatenate_smile)
-    # If we already have a character list, then replace the tk.word_index
-    # If not, just skip below part
+    i = 0
+    for item in smile_seq:
+        assert len(X_concatenate_smile[i]) == len(smile_seq[i]), "Length of Tokenized string should be the same as length of input string."
+        i = i + 1
 
     X_label = pad_sequences(smile_seq, maxlen=token_length, padding='post')
 
@@ -264,7 +265,7 @@ def smiles_transformer_tokenize(relation_list,
         sub, obj, interaction = relation.get()
         sub_smiles, obj_smiles = trfm_dict[sub], trfm_dict[obj]
         interaction_label = label_map[interaction]
-        concat_smiles = np.concatenate((sub_smiles, obj_smiles),axis=0)
+        concat_smiles = np.concatenate((sub_smiles, obj_smiles), axis=0)
         X_concatenate_smile.append(concat_smiles)
         y_label.append(interaction_label)
 

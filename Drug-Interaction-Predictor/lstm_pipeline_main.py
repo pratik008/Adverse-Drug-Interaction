@@ -5,7 +5,7 @@ from model import *
 import timeit
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
-
+from helper import *
 
 def main():
 
@@ -13,6 +13,7 @@ def main():
 
     print('Reading drugs ...')
     # import XML Data - From link source
+    #drug_list, smiles_dict = read_from_file('../data/sample/drug_split11.xml')
     drug_list, smiles_dict = read_from_file('../data/sample/full_database.xml')
     print('Drugs read : ', len(drug_list))
 
@@ -34,65 +35,51 @@ def main():
     print('Relations left : ', len(clean_relation_list))
     print('Pairs filtered : ', filter_count)
 
-    cleaning = timeit.default_timer()
-    print('Finished data ingestion and cleaning. Runtime : ', round((cleaning - start)/60, 2), ' minutes')
-
-
     # Create the labels from the relation_list
-    label_map, label_lookup = generate_labels(relation_list)
+    label_map, label_lookup = generate_labels(clean_relation_list, save=False)
+
+    cleaning = timeit.default_timer()
+    print('Finished data ingestion and cleaning. Runtime : ', round((cleaning - start) / 60, 2), ' minutes')
+
+    print('print label mappings : ', label_map)
 
     # Tokenize smiles and interactions - create labels for training data
-    X_label, y_label = tokenize_smiles_and_interactions(clean_relation_list,smiles_dict,label_map, token_length=512)
-
+    X_label, y_label = tokenize_smiles_and_interactions(clean_relation_list,smiles_dict, label_map, token_length=512)
 
     middle = timeit.default_timer()
     print('Finished feature generation. Runtime : ', round((middle - start) / 60, 2), ' minutes')
 
-    #rint = random.randint(1, 1000)
-    test_size = 0.5
+    # rint = random.randint(1, 1000)
+    test_size = 0.60
+    print('inside train and evaluate - calling train test split')
     rint = 42
-    x_train, x_test, y_train, y_test = train_test_split(X_label, \
-        y_label, test_size = test_size, random_state = rint, \
-            stratify = y_label)
+    x_train, x_test, y_train, y_test = train_test_split(X_label,
+                                                        y_label, test_size=test_size, random_state=rint,
+                                                        stratify=y_label)
 
-
+    print('completed train test split')
     x_train = np.array(x_train)
     y_train = np.array(y_train)
     x_test = np.array(x_test)
     y_test = np.array(y_test)
-
 
     print('Number of training classification labels : ', len(set(y_train)))
     print('Number of test classification labels : ', len(set(y_test)))
     print('Number of training samples : ', len(x_train))
     print('Number of test samples : ', len(x_test))
 
+    print(x_train.shape, y_train.shape, x_test.shape, y_test.shape)
 
-    print('\nTraining model_lstm_atten Model with tokenized SMILEs Strings ... ')
-    model = model_lstm_atten(x_train, y_train)
+    traintest = timeit.default_timer()
+    print('Finished train test split. Runtime : ', round((traintest - start) / 60, 2), ' minutes')
 
-
-    print('\nPrediction / evaluation of LSTM Model... ')
-    y_pred = model.predict(x_test)
-    y_pred = np.argmax(y_pred, axis=1).reshape((y_pred.shape[0], 1))
-    print('shape of y_pred is : ', y_pred.shape)
-
-
-    classes = sorted(list(set(y_test)))
-
-    accuracy_per_class, precision_per_class, recall_per_class, f1score_per_class = \
-        generate_model_report_per_class(y_test, y_pred, classes)
-
-    mcc_score = metrics.matthews_corrcoef(y_test, y_pred)
-
-    totalF1 = 0
-    for item in f1score_per_class:
-        totalF1 = totalF1 + f1score_per_class[item]
-        print("F1 score for class ", item, " is : ", f1score_per_class[item])
-
-    averageF1 = totalF1 / max(f1score_per_class)
-    print("Average F1 score per class: ", averageF1)
-    print("MCC Score: ", mcc_score)
+    train_and_evaluate(x_train, y_train, x_test, y_test, mlp_train)
+    train_and_evaluate(x_train, y_train, x_test, y_test, lstm_train)
+    train_and_evaluate(x_train, y_train, x_test, y_test, lstm_train_more)
+    train_and_evaluate(x_train, y_train, x_test, y_test, cnn_lstm_train)
+    train_and_evaluate(x_train, y_train, x_test, y_test, model_cnn)
+    train_and_evaluate(x_train, y_train, x_test, y_test, model_lstm_du)
+    train_and_evaluate(x_train, y_train, x_test, y_test, model_lstm_atten)
 
 
     stop = timeit.default_timer()

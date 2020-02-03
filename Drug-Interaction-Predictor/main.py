@@ -5,7 +5,7 @@ from model import *
 import timeit
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
-
+from keras_preprocessing.text import one_hot
 
 
 if __name__ == '__main__':
@@ -82,7 +82,20 @@ if __name__ == '__main__':
     print('Number of training samples : ', len(x_train))
     print('Number of test samples : ', len(x_test))
 
+    smiles_list = []
+    for item in smiles_dict:
+        print(smiles_dict[item])
+        smiles_list.append(smiles_dict[item])
 
+    smiles_list[15]
+
+    # integer encode the documents
+    vocab_size = 50
+    encoded_docs = [one_hot(d, vocab_size) for d in smiles_list]
+    print(encoded_docs)
+
+    encoded_docs[15]
+    smiles_list[15]
 
     print('\nTraining Random Forest with smiles_to_ECFP ... ')
     model = rf_train(x_train, y_train)

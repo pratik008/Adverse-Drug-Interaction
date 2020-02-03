@@ -1,5 +1,12 @@
 from rdkit import Chem
 import streamlit as st
+import numpy as np
+import pprint
+from model import *
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
+from feature_generation import *
+
 
 def process_and_tokenize(smiles):
     # handles both preprocessing and tokenizing for any input type
@@ -74,5 +81,34 @@ def tokenize(smiles):
 def pad_tokenize_smiles(tokenize_smiles):
     return tokenize_smiles
 
+
+def train_and_evaluate(x_train, y_train, x_test, y_test, model_name, epochs=5):
+
+    #### Training a Model
+    print('\nTraining model {0} with {1:2d} training samples!'.format(model_name, x_train.shape[0]))
+    model = model_name(x_train, y_train)
+    model.fit(x_train, y_train, epochs=epochs, batch_size=128, validation_split=0.2, verbose=2)
+    #print(model.summary)
+
+    #### Evaluate the model
+    print('\nPrediction / evaluation of mlp Model... ')
+    y_pred = model.predict(x_test)
+    print('Shape of y_pred', y_pred.shape)
+    y_pred = np.argmax(y_pred, axis=1).reshape((y_pred.shape[0], 1))
+
+    classes = sorted(list(set(y_test)))
+
+    accuracy_per_class, precision_per_class, recall_per_class, f1score_per_class = \
+        generate_model_report_per_class(y_test, y_pred, classes)
+
+    # Print F1 score per class
+    pprint.pprint(f1score_per_class)
+
+    totalF1 = 0
+    for item in f1score_per_class:
+        totalF1 = totalF1 + f1score_per_class[item]
+
+    print("Average F1 score per class: ", totalF1 / max(f1score_per_class))
+    print("MCC Score: ", metrics.matthews_corrcoef(y_test, y_pred))
 
 
