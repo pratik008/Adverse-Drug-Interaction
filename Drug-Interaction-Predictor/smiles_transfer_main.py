@@ -57,7 +57,7 @@ if __name__ == '__main__':
     print('Finished feature generation. Runtime : ', round((middle - start) / 60, 2), ' minutes')
 
     # rint = random.randint(1, 1000)
-    test_size = 0.60
+    test_size = 0.25
     print('inside train and evaluate - calling train test split')
     rint = 42
     x_train, x_test, y_train, y_test = train_test_split(X_label,
@@ -80,8 +80,9 @@ if __name__ == '__main__':
     traintest = timeit.default_timer()
     print('Finished train test split. Runtime : ', round((traintest - start) / 60, 2), ' minutes')
 
-    #train_and_evaluate(x_train, y_train, x_test, y_test, rf_train)
-    train_and_evaluate(x_train, y_train, x_test, y_test, mlp_train)
+
+    train_and_evaluate(x_train, y_train, x_test, y_test, rf_train)
+    #train_and_evaluate(x_train, y_train, x_test, y_test, mlp_train)
     #train_and_evaluate(x_train, y_train, x_test, y_test, lstm_transfer)
     #train_and_evaluate(x_train, y_train, x_test, y_test, lstm_2layer_transfer)
     #train_and_evaluate(x_train, y_train, x_test, y_test, cnn_lstm_transfer)

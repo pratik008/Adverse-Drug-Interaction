@@ -89,17 +89,27 @@ def train_and_evaluate(x_train, y_train, x_test, y_test, model_name, epochs=5):
     model = model_name(x_train, y_train)
     #print(model.summary())
 
-    #x_train = x_train.reshape((x_train.shape[0], 1, x_train.shape[1]))
-    #x_test = x_test.reshape((x_test.shape[0], 1, x_test.shape[1]))
+    if model_name == rf_train:
+        model.fit(x_train,y_train)
 
-    model.fit(x_train, y_train, epochs=epochs, batch_size=128, validation_split=0.2, verbose=2)
-    print(model.summary())
+    elif model_name == mlp_train :
+        model.fit(x_train, y_train, epochs=epochs, batch_size=128, validation_split=0.2, verbose=2)
+        print(model.summary())
+
+    else:
+        x_train = x_train.reshape((x_train.shape[0], 1, x_train.shape[1]))
+        x_test = x_test.reshape((x_test.shape[0], 1, x_test.shape[1]))
+
+        model.fit(x_train, y_train, epochs=epochs, batch_size=128, validation_split=0.2, verbose=2)
+        print(model.summary())
 
     #### Evaluate the model
-    print('\nPrediction / evaluation of mlp Model... ')
+    print('\nPrediction / evaluation of Model {}: '.format(model_name))
     y_pred = model.predict(x_test)
     print('Shape of y_pred', y_pred.shape)
-    y_pred = np.argmax(y_pred, axis=1).reshape((y_pred.shape[0], 1))
+
+    if model_name != rf_train:
+        y_pred = np.argmax(y_pred, axis=1).reshape((y_pred.shape[0], 1))
 
     classes = sorted(list(set(y_test)))
 
