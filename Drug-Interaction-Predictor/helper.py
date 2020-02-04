@@ -97,8 +97,8 @@ def train_and_evaluate(x_train, y_train, x_test, y_test, model_name, epochs=5):
         print(model.summary())
 
     else:
-        x_train = x_train.reshape((x_train.shape[0], 1, x_train.shape[1]))
-        x_test = x_test.reshape((x_test.shape[0], 1, x_test.shape[1]))
+        #x_train = x_train.reshape((x_train.shape[0], 1, x_train.shape[1]))
+        #x_test = x_test.reshape((x_test.shape[0], 1, x_test.shape[1]))
 
         model.fit(x_train, y_train, epochs=epochs, batch_size=128, validation_split=0.2, verbose=2)
         print(model.summary())

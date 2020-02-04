@@ -19,8 +19,8 @@ if __name__ == '__main__':
 
     print('Reading drugs ...')
     # import XML Data - From link source
-    #drug_list, smiles_dict = read_from_file('../data/sample/drug_split11.xml')
-    drug_list, smiles_dict = read_from_file('../data/sample/full_database.xml')
+    drug_list, smiles_dict = read_from_file('../data/sample/drug_split11.xml')
+    #drug_list, smiles_dict = read_from_file('../data/sample/full_database.xml')
     print('Drugs read : ', len(drug_list))
 
     print('Generating a list of interactions ...')
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     print('Finished feature generation. Runtime : ', round((middle - start) / 60, 2), ' minutes')
 
     # rint = random.randint(1, 1000)
-    test_size = 0.25
+    test_size = 0.50
     print('inside train and evaluate - calling train test split')
     rint = 42
     x_train, x_test, y_train, y_test = train_test_split(X_label,
@@ -77,67 +77,15 @@ if __name__ == '__main__':
 
     print(x_train.shape, y_train.shape, x_test.shape, y_test.shape)
 
+
     traintest = timeit.default_timer()
     print('Finished train test split. Runtime : ', round((traintest - start) / 60, 2), ' minutes')
 
 
-    train_and_evaluate(x_train, y_train, x_test, y_test, rf_train)
-    #train_and_evaluate(x_train, y_train, x_test, y_test, mlp_train)
-    #train_and_evaluate(x_train, y_train, x_test, y_test, lstm_transfer)
-    #train_and_evaluate(x_train, y_train, x_test, y_test, lstm_2layer_transfer)
-    #train_and_evaluate(x_train, y_train, x_test, y_test, cnn_lstm_transfer)
-    #train_and_evaluate(x_train, y_train, x_test, y_test, model_cnn)
-    #train_and_evaluate(x_train, y_train, x_test, y_test, model_lstm_du)
-    #train_and_evaluate(x_train, y_train, x_test, y_test, model_lstm_atten)
+    #Training with SMILEs Tranfer Learning ...
 
-
-    '''
-    # rint = random.randint(1, 1000)
-    test_size = 0.60
-    rint = 42
-    x_train, x_test, y_train, y_test = train_test_split(X_label, \
-                                                        y_label, test_size=test_size, random_state=rint, \
-                                                        stratify=y_label)
-
-    x_train = np.array(x_train)
-    y_train = np.array(y_train)
-    x_test = np.array(x_test)
-    y_test = np.array(y_test)
-
-    print('Number of training classification labels : ', len(set(y_train)))
-    print('Number of test classification labels : ', len(set(y_test)))
-    print('Number of training samples : ', len(x_train))
-    print('Number of test samples : ', len(x_test))
-
-    print(x_train.shape, y_train.shape, x_test.shape, y_test.shape)
-
-
-    #### Training a Model
-    print('\nTraining mlp with Transfer Learning... ')
-    model = model_lstm_atten(x_train, y_train)
-
-
-    #### Evaluate the model
-    print('\nPrediction / evaluation of mlp Model... ')
-    y_pred = model.predict(x_test)
-    if len(y_pred.shape == 2):
-        y_pred = np.argmax(y_pred, axis=1).reshape((y_pred.shape[0], 1))
-
-    classes = sorted(list(set(y_test)))
-
-    accuracy_per_class, precision_per_class, recall_per_class, f1score_per_class = \
-        generate_model_report_per_class(y_test, y_pred, classes)
-
-    #Print F1 score per class
-    pprint.pprint(f1score_per_class)
-
-    totalF1 = 0
-    for item in f1score_per_class:
-        totalF1 = totalF1 + f1score_per_class[item]
-
-    print("Average F1 score per class: ", totalF1 / max(f1score_per_class))
-    print("MCC Score: ", metrics.matthews_corrcoef(y_test, y_pred))
-    '''
+    #train_and_evaluate(x_train, y_train, x_test, y_test, rf_train)
+    train_and_evaluate(x_train, y_train, x_test, y_test, mlp_train)
 
     stop = timeit.default_timer()
     print('Total runtime: ', round((stop - start) / 60, 2), ' minutes')
