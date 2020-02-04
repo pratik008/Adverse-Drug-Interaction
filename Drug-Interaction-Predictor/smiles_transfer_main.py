@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     #Training with SMILEs Tranfer Learning ...
 
-    #train_and_evaluate(x_train, y_train, x_test, y_test, rf_train)
+    train_and_evaluate(x_train, y_train, x_test, y_test, rf_train)
     train_and_evaluate(x_train, y_train, x_test, y_test, mlp_train)
 
     stop = timeit.default_timer()
