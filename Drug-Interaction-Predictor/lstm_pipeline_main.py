@@ -73,6 +73,7 @@ def main():
     traintest = timeit.default_timer()
     print('Finished train test split. Runtime : ', round((traintest - start) / 60, 2), ' minutes')
 
+    #train_and_evaluate(x_train, y_train, x_test, y_test, rf_train)
     #train_and_evaluate(x_train, y_train, x_test, y_test, mlp_train)
     #train_and_evaluate(x_train, y_train, x_test, y_test, lstm_train)
     #train_and_evaluate(x_train, y_train, x_test, y_test, lstm_2layer_train)
@@ -80,9 +81,9 @@ def main():
     #train_and_evaluate(x_train, y_train, x_test, y_test, model_cnn)
     #train_and_evaluate(x_train, y_train, x_test, y_test, model_lstm_du)
     #train_and_evaluate(x_train, y_train, x_test, y_test, model_lstm_atten)
-    train_and_evaluate(x_train, y_train, x_test, y_test, cnn_2layer_lstm)
+    #train_and_evaluate(x_train, y_train, x_test, y_test, cnn_2layer_lstm)
     train_and_evaluate(x_train, y_train, x_test, y_test, cnn_lstm_atten)
-    train_and_evaluate(x_train, y_train, x_test, y_test, lstm_2layer_du)
+    #train_and_evaluate(x_train, y_train, x_test, y_test, lstm_2layer_du)
 
     stop = timeit.default_timer()
     print('Total runtime: ', round((stop - start) / 60, 2), ' minutes')

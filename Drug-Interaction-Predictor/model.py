@@ -1,22 +1,13 @@
-from sklearn.ensemble import RandomForestClassifier
-from sklearn import svm
-from sklearn.metrics import f1_score, recall_score, precision_score, accuracy_score
 import tensorflow as tf
 import numpy as np
-from keras.models import Sequential
-from keras.layers import Embedding, Dense, LSTM, Bidirectional, CuDNNLSTM, Conv1D, MaxPooling1D, GRU
-from keras.layers import Dense, Input, CuDNNLSTM, Embedding, Dropout, Activation, CuDNNGRU, Conv1D
-from keras.layers import Bidirectional, GlobalMaxPool1D, GlobalMaxPooling1D, GlobalAveragePooling1D
-from keras.layers import Input, Embedding, Dense, Conv2D, MaxPool2D, concatenate
-from keras.layers import Reshape, Flatten, Concatenate, Dropout, SpatialDropout1D
-from keras.optimizers import Adam
-from keras.models import Model
-from keras.engine.topology import Layer
-from keras import initializers, regularizers, constraints, optimizers
-import keras.backend as K
+from keras.engine import Layer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import svm
+from keras.models import Sequential, Model
+from keras.layers import LSTM, MaxPooling1D, CuDNNLSTM, Conv1D, GlobalMaxPooling1D, GlobalAveragePooling1D, Conv2D, MaxPool2D
+from keras.layers import Input, Embedding, Dense, concatenate, Reshape, Flatten, Concatenate, Dropout, Bidirectional
+from keras import initializers, regularizers, constraints
 from keras.callbacks import *
-
-
 
 
 #from tensorflow.compat.v1.keras.layers import CuDNNLSTM
@@ -24,53 +15,38 @@ from keras.callbacks import *
 # Contains various models and different metrics
 #
 #
-maxlen = 512
-max_features = 50
-embed_size = 128
+max_features = 50 # Number of character level embeddings (SMILEs string has about 45 unique characters)
+embed_size = 128 # Embedding size
 
 
 def rf_train(x_train, y_train):
-    '''Build and train a random forest
+    '''Build and return a random forest model
 
     Args :
         x_train (numpy.ndarray): Features for training
         y_train (numpy.ndarray): Classification labels for training
 
     Returns :
-        model (object): Returns an sklearn random forest model trained on the input data
+        model (object): Returns an sklearn random forest model
     '''
     rf_model = RandomForestClassifier(n_estimators = 100, verbose=2)
-
-    #rf_model.fit(x_train, y_train)
 
     return rf_model
 
 
 def svm_train(x_train, y_train):
-    '''Build and train an svm
+    '''Build and return an svm model
 
     Args :
         x_train (numpy.ndarray): Features for training
         y_train (numpy.ndarray): Classification labels for training
 
     Returns :
-        model (object): Returns an sklearn svm model fit on the input data
+        model (object): Returns an sklearn svm model
     '''
     svm_model = svm.SVC()
 
-    svm_model.fit(x_train, y_train)
-
     return svm_model
-
-class my_callback(tf.keras.callbacks.Callback):
-    '''Callback class for Keras model'''
-    print("Inside my callback")
-    pass
-    #def on_epoch_end(self, epoch, logs = {}):
-        #pass
-        #if logs.get('acc') > 0.99:
-            #print("\nReached 100% accuracy. Stopping training...")
-            #self.model.stop_training = True
 
 
 def dot_product(x, kernel):
@@ -90,16 +66,15 @@ def dot_product(x, kernel):
 
 
 def mlp_train(x_train, y_train):
-    '''Build and train a multilayer perceptron model
+    '''Build and return a multilayer perceptron model
 
     Args :
         x_train (numpy.ndarray): Features for training
         y_train (numpy.ndarray): Classification labels for training
 
     Returns :
-        model (object): Returns a Keras neural network fit on the input data
+        model (object): Returns a Keras neural network model
     '''
-    #callbacks = my_callback()
 
     number_of_features = x_train.shape[1]
     number_of_labels = max(set(y_train))
@@ -109,15 +84,15 @@ def mlp_train(x_train, y_train):
 
     model = Sequential()
     model.add(Dense(units=number_of_features, activation='relu'))
-    #model.add(Dropout(0.2))
+    model.add(Dropout(0.2))
     model.add(Dense(units=number_of_features, activation='relu'))
-    #model.add(Dropout(0.2))
+    model.add(Dropout(0.2))
     model.add(Dense(units=number_of_features, activation='relu'))
-    #model.add(Dropout(0.2))
+    model.add(Dropout(0.2))
     model.add(Dense(units=number_of_features//4, activation='relu'))
-    #model.add(Dropout(0.2))
+    model.add(Dropout(0.2))
     model.add(Dense(units=number_of_features//32, activation='relu'))
-    #model.add(Dropout(0.2))
+    model.add(Dropout(0.2))
     model.add(Dense(units=number_of_labels+1, activation='softmax'))
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
@@ -125,14 +100,14 @@ def mlp_train(x_train, y_train):
 
 
 def lstm_train(X_train, y_train):
-    '''Build and train a multilayer perceptron model
+    '''Build and return a single layer lstm model, optimised for GPU training
 
     Args :
         x_train (numpy.ndarray): Features for training
         y_train (numpy.ndarray): Classification labels for training
 
     Returns :
-        model (object): Returns a Keras neural network fit on the input data
+        model (object): Returns a Keras single layer lstm model
     '''
 
     number_of_labels = max(set(y_train))
@@ -157,14 +132,14 @@ def lstm_train(X_train, y_train):
 
 
 def lstm_2layer_train(X_train, y_train):
-    '''Build and train a multilayer perceptron model
+    '''Build and return a 2 layer lstm model, optimised for GPU training
 
     Args :
         x_train (numpy.ndarray): Features for training
         y_train (numpy.ndarray): Classification labels for training
 
     Returns :
-        model (object): Returns a Keras neural network fit on the input data
+        model (object): Returns a Keras model
     '''
 
     number_of_labels = max(set(y_train))
@@ -193,14 +168,14 @@ def lstm_2layer_train(X_train, y_train):
 
 
 def cnn_lstm_train(X_train, y_train):
-    '''Build and train a multilayer perceptron model
+    '''Build and return a cnn lstm model, optimised for GPU training
 
     Args :
         x_train (numpy.ndarray): Features for training
         y_train (numpy.ndarray): Classification labels for training
 
     Returns :
-        model (object): Returns a Keras neural network fit on the input data
+        model (object): Returns a Keras model
     '''
 
     number_of_labels = max(set(y_train))
@@ -226,14 +201,14 @@ def cnn_lstm_train(X_train, y_train):
 
 
 def cnn_2layer_lstm(X_train, y_train):
-    '''Build and train a multilayer perceptron model
+    '''Build and return a model with cnn and 2 lstm layer, optimised for GPU training
 
     Args :
         x_train (numpy.ndarray): Features for training
         y_train (numpy.ndarray): Classification labels for training
 
     Returns :
-        model (object): Returns a Keras neural network fit on the input data
+        model (object): Returns a Keras model
     '''
 
     number_of_labels = max(set(y_train))
@@ -263,22 +238,30 @@ def cnn_2layer_lstm(X_train, y_train):
     return model
 
 
-# https://www.kaggle.com/yekenot/2dcnn-textclassifier
 
 def model_cnn(X_train, y_train):
+    '''Build and return a CNN text model (using multiple filter sizes), credits: https://www.kaggle.com/yekenot/2dcnn-textclassifier
+
+        Args :
+            x_train (numpy.ndarray): Features for training
+            y_train (numpy.ndarray): Classification labels for training
+
+        Returns :
+            model (object): Returns a Keras model
+    '''
 
     filter_sizes = [1, 2, 3, 5]
     num_filters = 36
 
     inp = Input(shape=(X_train.shape[1],))
     x = Embedding(max_features, embed_size)(inp)
-    x = Reshape((maxlen, embed_size, 1))(x)
+    x = Reshape((X_train.shape[1], embed_size, 1))(x)
 
     maxpool_pool = []
     for i in range(len(filter_sizes)):
         conv = Conv2D(num_filters, kernel_size=(filter_sizes[i], embed_size),
                       kernel_initializer='he_normal', activation='relu')(x)
-        maxpool_pool.append(MaxPool2D(pool_size=(maxlen - filter_sizes[i] + 1, 1))(conv))
+        maxpool_pool.append(MaxPool2D(pool_size=(X_train.shape[1] - filter_sizes[i] + 1, 1))(conv))
 
     z = Concatenate(axis=1)(maxpool_pool)
     z = Flatten()(z)
@@ -293,15 +276,19 @@ def model_cnn(X_train, y_train):
     return model
 
 
-# BiDirectional LSTM
+
 def model_lstm_du(X_train, y_train):
+    '''Build and return a lstm model followed by global max pooling and global average pooling, optimised for GPU
+            Args :
+                x_train (numpy.ndarray): Features for training
+                y_train (numpy.ndarray): Classification labels for training
+
+            Returns :
+                model (object): Returns a Keras model
+    '''
+
     inp = Input(shape=(X_train.shape[1],))
     x = Embedding(max_features, embed_size)(inp)
-    '''
-    Here 64 is the size(dim) of the hidden state vector as well as the output vector. Keeping return_sequence we want the output for the entire sequence. So what is the dimension of output for this layer?
-        64*70(maxlen)*2(bidirection concat)
-    CuDNNLSTM is fast implementation of LSTM layer in Keras which only runs on GPU
-    '''
 
     if tf.test.is_gpu_available():
         print("Found GPU - Training with CuDNNLSTM")
@@ -321,15 +308,15 @@ def model_lstm_du(X_train, y_train):
     return model
 
 
+
 def lstm_2layer_du(X_train, y_train):
-    '''Build and train a multilayer perceptron model
+    '''Build and return a 2 layer lstm model followed by global max pooling and global average pooling, optimised for GPU
+                Args :
+                    x_train (numpy.ndarray): Features for training
+                    y_train (numpy.ndarray): Classification labels for training
 
-    Args :
-        x_train (numpy.ndarray): Features for training
-        y_train (numpy.ndarray): Classification labels for training
-
-    Returns :
-        model (object): Returns a Keras neural network fit on the input data
+                Returns :
+                    model (object): Returns a Keras model
     '''
 
     inp = Input(shape=(X_train.shape[1],))
@@ -357,10 +344,12 @@ def lstm_2layer_du(X_train, y_train):
     return model
 
 
-#https://www.kaggle.com/mlwhiz/attention-pytorch-and-keras
-#https://mlwhiz.com/blog/2019/03/09/deeplearning_architectures_text_classification/
+
 class AttentionWithContext(Layer):
-    """
+    '''
+    Credit - #https://www.kaggle.com/mlwhiz/attention-pytorch-and-keras
+    #https://mlwhiz.com/blog/2019/03/09/deeplearning_architectures_text_classification/
+
     Attention operation, with a context/query vector, for temporal data.
     Supports Masking.
     Follows the work of Yang et al. [https://www.cs.cmu.edu/~diyiy/docs/naacl16.pdf]
@@ -378,7 +367,7 @@ class AttentionWithContext(Layer):
         model.add(LSTM(64, return_sequences=True))
         model.add(AttentionWithContext())
         # next add a Dense layer (for classification/regression) or whatever...
-    """
+    '''
 
     def __init__(self,
                  W_regularizer=None, u_regularizer=None, b_regularizer=None,
@@ -456,6 +445,15 @@ class AttentionWithContext(Layer):
 
 
 def model_lstm_atten(X_train, y_train):
+    '''Build and return a 2 layer lstm model followed by attention, optimised for GPU
+                Args :
+                    x_train (numpy.ndarray): Features for training
+                    y_train (numpy.ndarray): Classification labels for training
+
+                Returns :
+                    model (object): Returns a Keras model
+    '''
+
     inp = Input(shape=(X_train.shape[1],))
     x = Embedding(max_features, embed_size)(inp)
 
@@ -478,6 +476,14 @@ def model_lstm_atten(X_train, y_train):
 
 
 def cnn_lstm_atten(X_train, y_train):
+    '''Build and return a 2 layer lstm model preceded by a CNN with Maxpooling and followed by attention, optimised for GPU
+                Args :
+                    x_train (numpy.ndarray): Features for training
+                    y_train (numpy.ndarray): Classification labels for training
+
+                Returns :
+                    model (object): Returns a Keras model
+    '''
     inp = Input(shape=(X_train.shape[1],))
     x = Embedding(max_features, embed_size)(inp)
 
@@ -510,7 +516,6 @@ def mlp_mol2vec_train(x_train, y_train):
     Returns :
         model (object): Returns a Keras neural network fit on the input data
     '''
-    callbacks = my_callback()
 
     x_train = np.array(x_train).astype('float')
     print('Data type of train data : ', x_train.dtype)
@@ -529,10 +534,6 @@ def mlp_mol2vec_train(x_train, y_train):
         tf.keras.layers.Dense(number_of_features*2, activation = tf.nn.relu),
         tf.keras.layers.Dense(number_of_features*2, activation = tf.nn.relu),
         tf.keras.layers.Dense(number_of_features//2, activation = tf.nn.relu),
-        #tf.keras.layers.Dense(number_of_features, activation = tf.nn.relu),
-        #tf.keras.layers.Dense(number_of_features, activation = tf.nn.relu),
-        #tf.keras.layers.Dense(number_of_features, activation = tf.nn.relu),
-        #tf.keras.layers.Dense(number_of_features, activation = tf.nn.relu),
         tf.keras.layers.Dense(number_of_labels + 1, activation = tf.nn.softmax)
     ])
 
@@ -545,95 +546,10 @@ def mlp_mol2vec_train(x_train, y_train):
                         y_train,
                         batch_size = 64,
                         epochs = 5,
-                        validation_split = 0.1,
-                        callbacks = [callbacks])
+                        validation_split = 0.1)
 
     mlp_model.summary()
 
     return mlp_model
 
 
-def generate_model_report(model, x_test, y_test):
-    '''Get various metrics for testing input model
-
-    Args :
-        model (object): Model to use for prediction
-        x_test (numpy.ndarray): Data for testing
-        y_test (numpy.ndarray): Target classification labels
-
-    Returns :
-        accuracy (int): Accuracy score
-        precision (int): Precision score
-        recall (int): Recall score
-        f1 (int): F1 score
-    '''
-    y_pred = model.predict(x_test)
-    y_pred = np.round(y_pred, decimals = 0).astype(int)
-    accuracy = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred, average = 'weighted')
-    recall = recall_score(y_test, y_pred, average = 'weighted')
-    f1 = f1_score(y_test, y_pred, average = 'weighted')
-    print("Accuracy: ", accuracy)
-    print("Precision: ", precision)
-    print("Recall: ", recall)
-    print("F1 Score: ", f1)
-
-    return accuracy, precision, recall, f1
-
-
-def convert_to_2_class(y_true, y_pred, cls):
-    '''Convert multi-class labels to binary labels with respect to a single class
-
-    Args :
-        y_true (numpy.ndarray): True classification labels
-        y_pred (numpy.ndarray): Predicted classification labels
-        cls (int): Class to use as reference for binary classification
-
-    Returns :
-        new_y_true (numpy.ndarray): True binary classification labels
-        new_y_pred (numpy.ndarray): Predicted binary classification labels
-    '''
-    new_ytrue = []
-    new_ypred = []
-    for i in range(len(y_true)):
-        if y_true[i] == cls and y_pred[i] == cls:
-            new_ytrue.append(1)
-            new_ypred.append(1)
-        elif y_true[i] == cls and y_pred[i] != cls:
-            new_ytrue.append(1)
-            new_ypred.append(0)
-        elif y_true[i] != cls and y_pred[i] ==cls:
-            new_ytrue.append(0)
-            new_ypred.append(1)
-        elif y_true[i] != cls and y_pred[1] !=cls:
-            new_ytrue.append(0)
-            new_ypred.append(0)
-
-    return new_ytrue, new_ypred
-
-
-def generate_model_report_per_class(y_test, y_pred, classes):
-    '''Get various metrics calculated classwise for testing model
-
-    Args :
-        y_true (numpy.ndarray): True classification labels
-        y_pred (numpy.ndarray): Predicted classification labels
-        cls (int): Class to use as reference for binary classification
-
-    Returns :
-        accuracy_per_class (list): List of classwise accuracy scores
-        recall_per_class (list): List of classwise accuracy scores
-        precision_per_class (list): List of classwise accuracy scores
-        f1score_per_class (list): List of classwise accuracy scores
-    '''
-    accuracy_per_class = {}
-    precision_per_class = {}
-    recall_per_class = {}
-    f1score_per_class = {}
-    for cls in classes:
-        new_ytrue, new_ypred = convert_to_2_class(y_test, y_pred, cls)
-        accuracy_per_class[cls] = accuracy_score(new_ytrue, new_ypred)
-        precision_per_class[cls] = precision_score(new_ytrue, new_ypred)
-        recall_per_class [cls] = recall_score(new_ytrue, new_ypred)
-        f1score_per_class[cls] = f1_score(new_ytrue, new_ypred)
-    return accuracy_per_class, precision_per_class, recall_per_class, f1score_per_class
