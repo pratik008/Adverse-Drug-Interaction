@@ -157,7 +157,7 @@ def lstm_2layer_train(X_train, y_train):
         model.add(Dropout(0.2))
     else:
         print("GPU not found : Training with LSTM")
-        model.add(Bidirectional(LSTM(64, activation='tanh', dropout=0.2, recurrent_dropout=0.2, return_sequences=True)))
+        model.add(Bidirectional(LSTM(128, activation='tanh', dropout=0.2, recurrent_dropout=0.2, return_sequences=True)))
         model.add(Bidirectional(LSTM(64, activation='tanh', dropout=0.2, recurrent_dropout=0.2, return_sequences=False)))
     model.add(Dense(64, activation='tanh'))
     model.add(Dropout(0.2))
@@ -213,7 +213,6 @@ def cnn_2layer_lstm(X_train, y_train):
 
     number_of_labels = max(set(y_train))
     embedding_dim = 64
-
 
     model = Sequential()
     model.add(Embedding(input_dim=46, output_dim=embedding_dim, input_length=X_train.shape[1]))
@@ -456,17 +455,22 @@ def model_lstm_atten(X_train, y_train):
 
     inp = Input(shape=(X_train.shape[1],))
     x = Embedding(max_features, embed_size)(inp)
-
+    x = Dropout(0.2)(x)
     if tf.test.is_gpu_available():
         print("Found GPU - Training with CuDNNLSTM")
         x = Bidirectional(CuDNNLSTM(128, return_sequences=True))(x)
+        x = Dropout(0.2)(x)
         x = Bidirectional(CuDNNLSTM(64, return_sequences=True))(x)
+        x = Dropout(0.2)(x)
     else:
         print("GPU not found : Training with LSTM")
         x = Bidirectional(LSTM(128, return_sequences=True))(x)
+        x = Dropout(0.2)(x)
         x = Bidirectional(LSTM(64, return_sequences=True))(x)
+        x = Dropout(0.2)(x)
     x = AttentionWithContext()(x)
     x = Dense(64, activation="relu")(x)
+    x = Dropout(0.2)(x)
     x = Dense(max(y_train) + 1, activation="softmax")(x)
     model = Model(inputs=inp, outputs=x)
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
@@ -486,20 +490,25 @@ def cnn_lstm_atten(X_train, y_train):
     '''
     inp = Input(shape=(X_train.shape[1],))
     x = Embedding(max_features, embed_size)(inp)
-
+    x = Dropout(0.2)(x)
     x = Conv1D(64, 5, activation='tanh')(x)
     x = MaxPooling1D(pool_size=8)(x)
 
     if tf.test.is_gpu_available():
         print("Found GPU - Training with CuDNNLSTM")
         x = Bidirectional(CuDNNLSTM(128, return_sequences=True))(x)
+        x = Dropout(0.2)(x)
         x = Bidirectional(CuDNNLSTM(64, return_sequences=True))(x)
+        x = Dropout(0.2)(x)
     else:
         print("GPU not found : Training with LSTM")
         x = Bidirectional(LSTM(128, return_sequences=True))(x)
+        x = Dropout(0.2)(x)
         x = Bidirectional(LSTM(64, return_sequences=True))(x)
+        x = Dropout(0.2)(x)
     x = AttentionWithContext()(x)
     x = Dense(64, activation="relu")(x)
+    x = Dropout(0.2)(x)
     x = Dense(max(y_train) + 1, activation="softmax")(x)
     model = Model(inputs=inp, outputs=x)
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
