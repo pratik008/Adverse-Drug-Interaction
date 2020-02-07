@@ -13,8 +13,8 @@ def main():
 
     print('Reading drugs ...')
     # import XML Data - From link source
-    #drug_list, smiles_dict = read_from_file('../data/sample/drug_split11.xml')
-    drug_list, smiles_dict = read_from_file('../data/sample/full_database.xml')
+    drug_list, smiles_dict = read_from_file('../data/sample/drug_split11.xml')
+    #drug_list, smiles_dict = read_from_file('../data/sample/full_database.xml')
     print('Drugs read : ', len(drug_list))
 
     print('Generating a list of interactions ...')

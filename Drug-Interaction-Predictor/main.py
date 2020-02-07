@@ -10,12 +10,14 @@ from helper import *
 
 if __name__ == '__main__':
 
+    train_type = 'ECFP' #Transfer_Learning, #ECFP, #SMILES
+
     start = timeit.default_timer()
 
     print('Reading drugs ...')
     # import XML Data - From link source
-    #drug_list, smiles_dict = read_from_file('../data/sample/drug_split11.xml')
-    drug_list, smiles_dict = read_from_file('../data/sample/full_database.xml')
+    drug_list, smiles_dict = read_from_file('../data/sample/drug_split11.xml')
+    #drug_list, smiles_dict = read_from_file('../data/sample/full_database.xml')
     print('Drugs read : ', len(drug_list))
 
     print('Generating a list of interactions ...')
@@ -45,9 +47,19 @@ if __name__ == '__main__':
     print('print label mappings : ', label_map)
 
 
-    # Feature generarion - from SMILEs to ECFP
-    smiles_feature_list, interaction_label_list, drug_pair_list \
-        = featurize_smiles_and_interactions(clean_relation_list, smiles_to_ECFP, smiles_dict, label_map)
+    if train_type == 'ECFP':
+        # Feature generarion - from SMILEs to ECFP
+        X_label, y_label, drug_pair_list \
+            = featurize_smiles_and_interactions(clean_relation_list, smiles_to_ECFP, smiles_dict, label_map)
+
+    elif train_type == 'SMILES':
+        # Tokenize smiles and interactions - create labels for training data
+        X_label, y_label = tokenize_smiles_and_interactions(clean_relation_list, smiles_dict, label_map,
+                                                            token_length=512)
+
+    elif train_type == 'Transfer_Learning':
+        # Transfer Features - from SMILEs_Transformer
+        X_label, y_label = smiles_transformer_tokenize(clean_relation_list, smiles_dict, label_map)
 
 
     middle = timeit.default_timer()
@@ -56,15 +68,13 @@ if __name__ == '__main__':
     #rint = random.randint(1, 1000)
     test_size = 0.25
     rint = 42
-    x_train, x_test, y_train, y_test = train_test_split(smiles_feature_list, \
-        interaction_label_list, test_size = test_size, random_state = rint, \
-            stratify = interaction_label_list)
+    x_train, x_test, y_train, y_test = train_test_split(X_label, \
+        y_label, test_size = test_size, random_state = rint, \
+            stratify = y_label)
 
-    '''
-    z_train, z_test, y_train, y_test = train_test_split(drug_pair_list, \
-        interaction_label_list, test_size = test_size, random_state = rint, \
-            stratify = interaction_label_list)
-    '''
+
+    traintest = timeit.default_timer()
+    print('Finished train test split. Runtime : ', round((traintest - start) / 60, 2), ' minutes')
 
     x_train = np.array(x_train)
     y_train = np.array(y_train)
@@ -76,10 +86,22 @@ if __name__ == '__main__':
     print('Number of training samples : ', len(x_train))
     print('Number of test samples : ', len(x_test))
 
+    if train_type == 'ECFP' or train_type == 'Transfer_Learning' or train_type == 'SMILES':
+        # Use these for SMILES, Transfer_Learning and ECFP
+        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=rf_train, train_type=train_type)
+        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=mlp_train, train_type=train_type)
 
-    train_and_evaluate(x_train, y_train, x_test, y_test, model_name=rf_train)
-    train_and_evaluate(x_train, y_train, x_test, y_test, model_name=mlp_train, epochs=10)
-
+    # Use these for SMILES only
+    if train_type == 'SMILES':
+        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=lstm_train, train_type=train_type)
+        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=lstm_2layer_train, train_type=train_type)
+        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=cnn_lstm_train, train_type=train_type)
+        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=model_cnn, train_type=train_type)
+        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=model_lstm_du, train_type=train_type)
+        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=model_lstm_atten, train_type=train_type)
+        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=cnn_2layer_lstm, train_type=train_type)
+        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=cnn_lstm_atten, train_type=train_type)
+        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=lstm_2layer_du, train_type=train_type)
 
     stop = timeit.default_timer()
     print('Total runtime: ', round((stop - start)/60, 2), ' minutes')

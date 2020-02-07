@@ -82,12 +82,12 @@ def pad_tokenize_smiles(tokenize_smiles):
     return tokenize_smiles
 
 
-def train_and_evaluate(x_train, y_train, x_test, y_test, model_name, epochs=10):
+def train_and_evaluate(x_train, y_train, x_test, y_test, model_name, train_type, epochs=4):
 
     model = None
-    save_model_name = "./models/"+model_name.__name__ + '.h5'
-    save_model_img = "./logs/"+model_name.__name__+'.png'
-    save_metrics_name = "./logs/"+model_name.__name__+'_metrics.csv'
+    save_model_name = "./models/"+train_type+'_'+model_name.__name__ + '.h5'
+    save_model_img = "./logs/"+train_type+'_'+model_name.__name__+'.png'
+    save_metrics_name = "./logs/"+train_type+'_'+model_name.__name__
 
 
     #### Training a Model
@@ -111,7 +111,7 @@ def train_and_evaluate(x_train, y_train, x_test, y_test, model_name, epochs=10):
             print('No saved model found.')
             model = model_name(x_train, y_train)
 
-        plot_model(model, to_file=save_model_img)
+        #plot_model(model, to_file=save_model_img)
         history = model.fit(x_train, y_train, epochs=epochs, batch_size=128, validation_split=0.2, verbose=2, callbacks=[earlyStopping, mcp_save])
         print(model.summary())
 
@@ -128,12 +128,13 @@ def train_and_evaluate(x_train, y_train, x_test, y_test, model_name, epochs=10):
     accuracy_per_class, precision_per_class, recall_per_class, f1score_per_class, mcc_score_per_class = \
         generate_model_report_per_class(y_test, y_pred, classes)
 
+    metrics = pd.DataFrame()
+
     # Print F1 score per class
     print('F1 Score per class')
     pprint.pprint(f1score_per_class)
     print('MCC Score per class')
     pprint.pprint(mcc_score_per_class)
-
 
     print("Average F1 score per class: ",  sum(f1score_per_class.values()) / len(f1score_per_class.values()))
     print("Average accuracy per class: ",  sum(accuracy_per_class.values()) / len(accuracy_per_class.values()))
@@ -141,17 +142,33 @@ def train_and_evaluate(x_train, y_train, x_test, y_test, model_name, epochs=10):
     print("Average recall per class: ",  sum(recall_per_class.values()) / len(recall_per_class.values()))
     print("Average mcc score per class: ",  sum(mcc_score_per_class.values()) / len(mcc_score_per_class.values()))
 
+    metrics['f1score_per_class'] = f1score_per_class.values()
+    metrics['precision_per_class'] = precision_per_class.values()
+    metrics['recall_per_class'] = recall_per_class.values()
+    metrics['mcc_score_per_class'] = mcc_score_per_class.values()
+    metrics['accuracy_per_class'] = accuracy_per_class.values()
+
 
     if model_name != rf_train:
-        # Plot and save training & validation accuracy values
-        metrics = pd.DataFrame()
-        metrics['acc'] = history.history['acc']
-        metrics['val_acc'] = history.history['val_acc']
-        metrics['loss'] = history.history['loss']
-        metrics['val_loss'] = history.history['val_loss']
+        loss_metrics = pd.DataFrame()
 
-        print(metrics)
-        metrics.to_csv(save_metrics_name)
+        # Plot and save training & validation accuracy values
+        if tf.test.is_gpu_available():
+            loss_metrics['acc'] = history.history['acc']
+            loss_metrics['val_acc'] = history.history['val_acc']
+            loss_metrics['loss'] = history.history['loss']
+            loss_metrics['val_loss'] = history.history['val_loss']
+        else:
+            loss_metrics['acc'] = history.history['accuracy']
+            loss_metrics['val_acc'] = history.history['val_accuracy']
+            loss_metrics['loss'] = history.history['loss']
+            loss_metrics['val_loss'] = history.history['val_loss']
+
+        print(loss_metrics)
+        loss_metrics.to_csv(save_metrics_name+'_loss_metrics.csv')
+
+    print(metrics)
+    metrics.to_csv(save_metrics_name+'_metrics.csv')
 
 
     '''
