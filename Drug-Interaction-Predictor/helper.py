@@ -4,7 +4,7 @@ from model import *
 from keras.models import load_model
 from feature_generation import *
 from keras.utils import CustomObjectScope, plot_model
-from sklearn.metrics import f1_score, recall_score, precision_score, accuracy_score, matthews_corrcoef
+from sklearn.metrics import f1_score, recall_score, precision_score, accuracy_score, matthews_corrcoef, roc_auc_score
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -82,7 +82,7 @@ def pad_tokenize_smiles(tokenize_smiles):
     return tokenize_smiles
 
 
-def train_and_evaluate(x_train, y_train, x_test, y_test, model_name, epochs=5):
+def train_and_evaluate(x_train, y_train, x_test, y_test, model_name, epochs=10):
 
     model = None
     save_model_name = "./models/"+model_name.__name__ + '.h5'
@@ -112,7 +112,7 @@ def train_and_evaluate(x_train, y_train, x_test, y_test, model_name, epochs=5):
             model = model_name(x_train, y_train)
 
         plot_model(model, to_file=save_model_img)
-        history = model.fit(x_train, y_train, epochs=50, batch_size=128, validation_split=0.2, verbose=2, callbacks=[earlyStopping, mcp_save])
+        history = model.fit(x_train, y_train, epochs=epochs, batch_size=128, validation_split=0.2, verbose=2, callbacks=[earlyStopping, mcp_save])
         print(model.summary())
 
     #### Evaluate the model
@@ -142,15 +142,17 @@ def train_and_evaluate(x_train, y_train, x_test, y_test, model_name, epochs=5):
     print("Average mcc score per class: ",  sum(mcc_score_per_class.values()) / len(mcc_score_per_class.values()))
 
 
-    # Plot and save training & validation accuracy values
-    metrics = pd.DataFrame()
-    metrics['accuracy'] = history.history['accuracy']
-    metrics['val_accuracy'] = history.history['val_accuracy']
-    metrics['loss'] = history.history['loss']
-    metrics['val_loss'] = history.history['val_loss']
+    if model_name != rf_train:
+        # Plot and save training & validation accuracy values
+        metrics = pd.DataFrame()
+        metrics['acc'] = history.history['acc']
+        metrics['val_acc'] = history.history['val_acc']
+        metrics['loss'] = history.history['loss']
+        metrics['val_loss'] = history.history['val_loss']
 
-    print(metrics)
-    metrics.to_csv(save_metrics_name)
+        print(metrics)
+        metrics.to_csv(save_metrics_name)
+
 
     '''
     plt.plot(history.history['accuracy'])
@@ -191,6 +193,7 @@ def generate_model_report(model, x_test, y_test):
     precision = precision_score(y_test, y_pred, average = 'weighted')
     recall = recall_score(y_test, y_pred, average = 'weighted')
     f1 = f1_score(y_test, y_pred, average = 'weighted')
+
     print("Accuracy: ", accuracy)
     print("Precision: ", precision)
     print("Recall: ", recall)

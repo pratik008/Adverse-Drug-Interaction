@@ -29,7 +29,7 @@ def rf_train(x_train, y_train):
     Returns :
         model (object): Returns an sklearn random forest model
     '''
-    rf_model = RandomForestClassifier(n_estimators = 100, verbose=2)
+    rf_model = RandomForestClassifier(n_estimators = 10, verbose=2)
 
     return rf_model
 
