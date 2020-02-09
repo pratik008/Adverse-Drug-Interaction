@@ -132,7 +132,9 @@ def tokenize_smiles_and_interactions(relation_list,
         sub_smiles, obj_smiles = smiles_dict[sub], smiles_dict[obj]
         interaction_label = label_map[interaction]
         X_concatenate_smile.append(sub_smiles[:int(token_length/2)]+obj_smiles[:int(token_length/2)])
+        #X_concatenate_smile.append(obj_smiles[:int(token_length/2)]+sub_smiles[:int(token_length/2)])
         y_label.append(interaction_label)
+        #y_label.append(interaction_label)
 
     # ==============Tokenizer - Convert SMILEs Charcaters to index================
     tk = Tokenizer(num_words=None, char_level=True, oov_token='UNK')
@@ -200,9 +202,12 @@ def featurize_smiles_and_interactions(relation_list, smiles_feature_generator,
 
         if sub_feature is not None and obj_feature is not None:
             smiles_feature_list.append(np.concatenate((sub_feature, obj_feature)))
+            #smiles_feature_list.append(np.concatenate((obj_feature, sub_feature)))
             interaction_label_list.append(interaction_label)
+            #interaction_label_list.append(interaction_label)
             drug_pair_list.append((sub, obj))
-        
+            #drug_pair_list.append((obj, sub))
+
 
     return smiles_feature_list, interaction_label_list, drug_pair_list
 
@@ -265,9 +270,10 @@ def smiles_transformer_tokenize(relation_list,
         sub, obj, interaction = relation.get()
         sub_smiles, obj_smiles = trfm_dict[sub], trfm_dict[obj]
         interaction_label = label_map[interaction]
-        concat_smiles = np.concatenate((sub_smiles, obj_smiles), axis=0)
-        X_concatenate_smile.append(concat_smiles)
+        X_concatenate_smile.append(np.concatenate((sub_smiles, obj_smiles), axis=0))
+        #X_concatenate_smile.append(np.concatenate((obj_smiles, sub_smiles), axis=0))
         y_label.append(interaction_label)
+        #y_label.append(interaction_label)
 
     return X_concatenate_smile, y_label
 

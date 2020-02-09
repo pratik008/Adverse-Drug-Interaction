@@ -10,12 +10,12 @@ from helper import *
 
 if __name__ == '__main__':
 
-    train_type = 'ECFP' #Transfer_Learning, #ECFP, #SMILES
+    train_type = 'SMILES' #Transfer_Learning, #ECFP, #SMILES
 
     start = timeit.default_timer()
 
     print('Reading drugs ...')
-    # import XML Data - From link source
+    #import XML Data - From link source
     drug_list, smiles_dict = read_from_file('../data/sample/drug_split11.xml')
     #drug_list, smiles_dict = read_from_file('../data/sample/full_database.xml')
     print('Drugs read : ', len(drug_list))
@@ -88,23 +88,22 @@ if __name__ == '__main__':
 
     if train_type == 'ECFP' or train_type == 'Transfer_Learning' or train_type == 'SMILES':
         # Use these for SMILES, Transfer_Learning and ECFP
-        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=rf_train, train_type=train_type)
+        #train_and_evaluate(x_train, y_train, x_test, y_test, model_name=rf_train, train_type=train_type)
         train_and_evaluate(x_train, y_train, x_test, y_test, model_name=mlp_train, train_type=train_type)
 
     # Use these for SMILES only
     if train_type == 'SMILES':
-        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=lstm_train, train_type=train_type)
-        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=lstm_2layer_train, train_type=train_type)
-        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=cnn_lstm_train, train_type=train_type)
-        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=model_cnn, train_type=train_type)
-        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=model_lstm_du, train_type=train_type)
-        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=model_lstm_atten, train_type=train_type)
-        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=cnn_2layer_lstm, train_type=train_type)
-        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=cnn_lstm_atten, train_type=train_type)
-        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=lstm_2layer_du, train_type=train_type)
+        #train_and_evaluate(x_train, y_train, x_test, y_test, model_name=lstm_train, train_type=train_type)
+        #train_and_evaluate(x_train, y_train, x_test, y_test, model_name=lstm_2layer_train, train_type=train_type)
+        #train_and_evaluate(x_train, y_train, x_test, y_test, model_name=cnn_lstm_train, train_type=train_type)
+        #train_and_evaluate(x_train, y_train, x_test, y_test, model_name=model_cnn, train_type=train_type)
+        #train_and_evaluate(x_train, y_train, x_test, y_test, model_name=model_lstm_du, train_type=train_type)
+        #train_and_evaluate(x_train, y_train, x_test, y_test, model_name=model_lstm_atten, train_type=train_type)
+        #train_and_evaluate(x_train, y_train, x_test, y_test, model_name=cnn_2layer_lstm, train_type=train_type)
+        #train_and_evaluate(x_train, y_train, x_test, y_test, model_name=cnn_lstm_atten, train_type=train_type)
+        #train_and_evaluate(x_train, y_train, x_test, y_test, model_name=lstm_2layer_du, train_type=train_type)
+        train_and_evaluate(x_train, y_train, x_test, y_test, model_name=cnn_1lstm_atten, train_type=train_type)
 
     stop = timeit.default_timer()
     print('Total runtime: ', round((stop - start)/60, 2), ' minutes')
-    
-    #accuracy, precision, recall, f1 = generate_model_report(model, x_test, y_test)
-    
+
