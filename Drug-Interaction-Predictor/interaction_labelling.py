@@ -184,6 +184,8 @@ def generate_labels(relation_list, save = False):
     
     return label_map, label_lookup
 
+
+
 def write_dict_to_csv(d, csv_file):
     '''Write a dictionary to a csv file
 

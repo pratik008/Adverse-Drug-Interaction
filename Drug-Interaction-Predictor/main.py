@@ -7,6 +7,21 @@ from sklearn.model_selection import train_test_split
 from sklearn import metrics
 from keras_preprocessing.text import one_hot
 from helper import *
+import collections
+import argparse
+
+parser = argparse.ArgumentParser(description='Train drug interactions.')
+parser.add_argument('-s', '--train_style', help="Style of training - options are ECFP, SMILES, Transfer_Learning")
+
+args = parser.parse_args()
+
+train_style = args.train_style
+
+preprocess_and_train(train_style)
+
+if train_style is None:
+    raise ValueError('Missing arguments')
+
 
 if __name__ == '__main__':
 
@@ -62,6 +77,13 @@ if __name__ == '__main__':
         X_label, y_label = smiles_transformer_tokenize(clean_relation_list, smiles_dict, label_map)
 
 
+    counter = collections.Counter(y_label)
+    print(counter)
+    y_label_dist = pd.DataFrame(counter.items())
+
+    y_label_dist.to_csv("./logs/label_distribution.csv")
+
+
     middle = timeit.default_timer()
     print('Finished feature generation. Runtime : ', round((middle - start)/60, 2), ' minutes')
 
@@ -71,6 +93,12 @@ if __name__ == '__main__':
     x_train, x_test, y_train, y_test = train_test_split(X_label, \
         y_label, test_size = test_size, random_state = rint, \
             stratify = y_label)
+
+    counter = collections.Counter(y_train)
+    print(counter)
+    y_train_dist = pd.DataFrame(counter.items())
+
+    y_train_dist.to_csv("./logs/y_train_distribution.csv")
 
 
     traintest = timeit.default_timer()

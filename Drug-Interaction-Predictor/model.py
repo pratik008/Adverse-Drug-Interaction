@@ -29,7 +29,7 @@ def rf_train(x_train, y_train):
     Returns :
         model (object): Returns an sklearn random forest model
     '''
-    rf_model = RandomForestClassifier(n_estimators = 10, verbose=2)
+    rf_model = RandomForestClassifier(n_estimators = 100, verbose=2)
 
     return rf_model
 
@@ -479,7 +479,7 @@ def model_lstm_atten(X_train, y_train):
 
 
 
-def cnn_lstm_atten(X_train, y_train):
+def cnn_2lstm_atten(X_train, y_train):
     '''Build and return a 2 layer lstm model preceded by a CNN with Maxpooling and followed by attention, optimised for GPU
                 Args :
                     x_train (numpy.ndarray): Features for training
@@ -552,6 +552,46 @@ def cnn_1lstm_atten(X_train, y_train):
 
     return model
 
+
+def cnn_3lstm_atten(X_train, y_train):
+    '''Build and return a 3 layer lstm model preceded by a CNN with Maxpooling and followed by attention, optimised for GPU
+                Args :
+                    x_train (numpy.ndarray): Features for training
+                    y_train (numpy.ndarray): Classification labels for training
+
+                Returns :
+                    model (object): Returns a Keras model
+    '''
+    inp = Input(shape=(X_train.shape[1],))
+    x = Embedding(max_features, embed_size)(inp)
+    x = Dropout(0.2)(x)
+    x = Conv1D(128, 5, activation='tanh')(x)
+    x = MaxPooling1D(pool_size=8)(x)
+
+    if tf.test.is_gpu_available():
+        print("Found GPU - Training with CuDNNLSTM")
+        x = Bidirectional(CuDNNLSTM(256, return_sequences=True))(x)
+        x = Dropout(0.2)(x)
+        x = Bidirectional(CuDNNLSTM(128, return_sequences=True))(x)
+        x = Dropout(0.2)(x)
+        x = Bidirectional(CuDNNLSTM(64, return_sequences=True))(x)
+        x = Dropout(0.2)(x)
+    else:
+        print("GPU not found : Training with LSTM")
+        x = Bidirectional(LSTM(256, return_sequences=True))(x)
+        x = Dropout(0.2)(x)
+        x = Bidirectional(LSTM(128, return_sequences=True))(x)
+        x = Dropout(0.2)(x)
+        x = Bidirectional(LSTM(64, return_sequences=True))(x)
+        x = Dropout(0.2)(x)
+    x = AttentionWithContext()(x)
+    x = Dense(64, activation="relu")(x)
+    x = Dropout(0.2)(x)
+    x = Dense(max(y_train) + 1, activation="softmax")(x)
+    model = Model(inputs=inp, outputs=x)
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+    return model
 
 
 def mlp_mol2vec_train(x_train, y_train):
