@@ -33,6 +33,10 @@ elif train_model == 'cnn_2lstm_atten':
     train_model = cnn_2lstm_atten
 elif train_model == 'cnn_3lstm_atten':
     train_model = cnn_3lstm_atten
+elif train_model == 'cnn_xl_atten':
+    train_model = cnn_xl_atten
+elif train_model == 'cnn_xxl_atten':
+    train_model = cnn_xxl_atten
 
 if test_size is None:
     test_size = 0.25
@@ -40,4 +44,13 @@ if test_size is None:
 if epochs is None:
     epochs = 10
 
-preprocess_and_train(train_style, train_model, test_size, epochs)
+#Read Data and Preprocess
+x_train, x_test, y_train, y_test = read_and_preprocess(train_style, test_size)
+
+#Train Data and Evaluate
+train_and_evaluate(x_train, x_test, y_train, y_test, model_name=train_model, train_type=train_style, epochs=epochs)
+
+#Load model and infer
+
+
+

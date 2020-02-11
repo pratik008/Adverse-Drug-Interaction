@@ -94,8 +94,8 @@ def pad_tokenize_smiles(tokenize_smiles):
     return tokenize_smiles
 
 
-def preprocess_and_train(train_style, train_model, test_size, epochs):
-    print("training with style {} Model {} test size {} epochs {}".format(train_style, train_model, test_size, epochs))
+def read_and_preprocess(train_style, test_size):
+    print("training with style {} test size {} ".format(train_style, test_size))
 
     train_type = train_style # Transfer_Learning, #ECFP, #SMILES
 
@@ -103,8 +103,8 @@ def preprocess_and_train(train_style, train_model, test_size, epochs):
 
     print('Reading drugs ...')
     # import XML Data - From link source
-    drug_list, smiles_dict = read_from_file('../data/sample/drug_split11.xml')
-    # drug_list, smiles_dict = read_from_file('../data/sample/full_database.xml')
+    #drug_list, smiles_dict = read_from_file('../data/sample/drug_split11.xml')
+    drug_list, smiles_dict = read_from_file('../data/sample/full_database.xml')
     print('Drugs read : ', len(drug_list))
 
     print('Generating a list of interactions ...')
@@ -183,15 +183,10 @@ def preprocess_and_train(train_style, train_model, test_size, epochs):
     print('Number of training samples : ', len(x_train))
     print('Number of test samples : ', len(x_test))
 
-    train_and_evaluate(x_train, y_train, x_test, y_test, model_name=train_model, train_type=train_type, epochs=epochs)
+    return x_train, x_test, y_train, y_test
 
 
-    stop = timeit.default_timer()
-    print('Total runtime: ', round((stop - start) / 60, 2), ' minutes')
-
-
-
-def train_and_evaluate(x_train, y_train, x_test, y_test, model_name, train_type, epochs=4):
+def train_and_evaluate(x_train, x_test, y_train, y_test, model_name, train_type, epochs=10):
 
     model = None
     save_model_name = "./models/"+train_type+'_'+model_name.__name__ + '.h5'
@@ -220,7 +215,7 @@ def train_and_evaluate(x_train, y_train, x_test, y_test, model_name, train_type,
             print('No saved model found.')
             model = model_name(x_train, y_train)
 
-        #plot_model(model, to_file=save_model_img)
+        plot_model(model, to_file=save_model_img)
         history = model.fit(x_train, y_train, epochs=epochs, batch_size=128, validation_split=0.2, verbose=2, callbacks=[earlyStopping, mcp_save])
         print(model.summary())
 
