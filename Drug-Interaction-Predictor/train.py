@@ -1,5 +1,6 @@
 import argparse
 from helper import *
+from model import *
 
 parser = argparse.ArgumentParser(description='Train drug interactions.')
 parser.add_argument('-s', '--train_style', help="Style of training - options are ECFP, SMILES, Transfer_Learning")
@@ -51,6 +52,7 @@ x_train, x_test, y_train, y_test = read_and_preprocess(train_style, test_size)
 train_and_evaluate(x_train, x_test, y_train, y_test, model_name=train_model, train_type=train_style, epochs=epochs)
 
 #Load model and infer
+
 
 
 

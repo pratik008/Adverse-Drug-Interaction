@@ -1,23 +1,18 @@
-import streamlit as st
-import pprint
-from model import *
-from keras.models import load_model
-from feature_generation import *
-from keras.utils import CustomObjectScope, plot_model
-from sklearn.metrics import f1_score, recall_score, precision_score, accuracy_score, matthews_corrcoef, roc_auc_score
-import matplotlib.pyplot as plt
-import pandas as pd
-from read_data import *
-from interaction_labelling import *
-from feature_generation import *
-from model import *
-import timeit
-from sklearn.model_selection import train_test_split
-from sklearn import metrics
-from keras_preprocessing.text import one_hot
 from helper import *
 import collections
-import argparse
+import timeit
+import streamlit as st
+import pprint
+from inference import *
+from interaction_labelling import *
+from feature_generation import *
+from read_data import *
+from sklearn.model_selection import train_test_split
+from model import *
+from keras.utils import CustomObjectScope, plot_model
+from keras.models import load_model
+from sklearn.metrics import *
+
 
 
 def process_and_tokenize(smiles):
@@ -103,8 +98,8 @@ def read_and_preprocess(train_style, test_size):
 
     print('Reading drugs ...')
     # import XML Data - From link source
-    #drug_list, smiles_dict = read_from_file('../data/sample/drug_split11.xml')
-    drug_list, smiles_dict = read_from_file('../data/sample/full_database.xml')
+    drug_list, smiles_dict = read_from_file('../data/sample/drug_split11.xml')
+    #drug_list, smiles_dict = read_from_file('../data/sample/full_database.xml')
     print('Drugs read : ', len(drug_list))
 
     print('Generating a list of interactions ...')

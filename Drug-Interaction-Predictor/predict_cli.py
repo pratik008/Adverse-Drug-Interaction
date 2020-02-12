@@ -1,7 +1,5 @@
 import argparse
-import sys
 from inference import *
-import tensorflow as tf
 
 from inference import predict_from_files
 

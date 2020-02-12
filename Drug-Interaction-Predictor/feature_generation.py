@@ -15,8 +15,6 @@ from smiles_transformer.utils import *
 # interaction labels by numerical ones
 #
 
-
-
 pad_index = 0
 unk_index = 1
 eos_index = 2
@@ -75,10 +73,18 @@ def smiles_to_ECFP(smiles, model = None, fp_radius = 2):
     return fparr
 
 
+def tokenize_SMILES(smiles):
+    # Tokenizer - Convert SMILEs Charcaters to index
+    tk = Tokenizer(num_words=None, char_level=True, oov_token='UNK')
+    tk.fit_on_texts(smiles)
+    print(tk.index_word)
+    smile_seq = tk.texts_to_sequences(smiles)
+    return smile_seq
+
+
+
 def smiles_to_mol2vec_vector(smiles, model, fp_radius = 2, uncommon = None):
     '''Convert a SMILES string to a Mol2Vec vector
-
-
     '''
 
     #word2vec_model = word2vec.Word2Vec.load(model_path)
@@ -136,11 +142,9 @@ def tokenize_smiles_and_interactions(relation_list,
         y_label.append(interaction_label)
         #y_label.append(interaction_label)
 
-    # ==============Tokenizer - Convert SMILEs Charcaters to index================
-    tk = Tokenizer(num_words=None, char_level=True, oov_token='UNK')
-    tk.fit_on_texts(X_concatenate_smile)
-    print(tk.index_word)
-    smile_seq = tk.texts_to_sequences(X_concatenate_smile)
+
+    smile_seq = tokenize_SMILES(X_concatenate_smile)
+
     i = 0
     for item in smile_seq:
         assert len(X_concatenate_smile[i]) == len(smile_seq[i]), "Length of Tokenized string should be the same as length of input string."

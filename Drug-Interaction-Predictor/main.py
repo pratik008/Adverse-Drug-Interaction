@@ -10,18 +10,6 @@ from helper import *
 import collections
 import argparse
 
-parser = argparse.ArgumentParser(description='Train drug interactions.')
-parser.add_argument('-s', '--train_style', help="Style of training - options are ECFP, SMILES, Transfer_Learning")
-
-args = parser.parse_args()
-
-train_style = args.train_style
-
-preprocess_and_train(train_style)
-
-if train_style is None:
-    raise ValueError('Missing arguments')
-
 
 if __name__ == '__main__':
 

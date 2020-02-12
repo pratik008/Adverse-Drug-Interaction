@@ -1,5 +1,6 @@
 import tensorflow as tf
-from feature_generation import smiles_to_ECFP
+from feature_generation import smiles_to_ECFP, tokenize_SMILES
+from keras.preprocessing.sequence import pad_sequences
 import numpy as np
 import pandas as pd
 import csv
@@ -33,7 +34,7 @@ def read_dict_from_csv(csv_file):
     return d
 
 
-def predict_interaction(smiles, smiles_b, model = 'mlp', feature = 'ECFP', directory = ''):
+def predict_interaction(smiles, smiles_b, model = 'mlp', feature = 'SMILES', directory = ''):
     '''Use model to predict interactions
 
     Args :
@@ -47,15 +48,23 @@ def predict_interaction(smiles, smiles_b, model = 'mlp', feature = 'ECFP', direc
         prediction (numpy.ndarray): Array containing prediction from model
     '''
 
-    model_path = os.path.join(directory, model + '_' + feature + '.h5')
+    model_path = os.path.join(directory, feature + '_' + model + '.h5')
     model = tf.keras.models.load_model(model_path)
 
-    vec_a = smiles_to_ECFP(smiles)
-    vec_b = smiles_to_ECFP(smiles_b)
+    if feature == 'ECFP':
+        vec_a = smiles_to_ECFP(smiles)
+        vec_b = smiles_to_ECFP(smiles_b)
+    elif feature == 'SMILES':
+        vec_a = tokenize_SMILES(smiles)
+        vec_b = tokenize_SMILES(smiles_b)
+
     test = np.concatenate((vec_a, vec_b)).reshape((1, -1))
+
+    test = pad_sequences(test, maxlen=512, padding='post')
     prediction = model.predict(test)
 
     return prediction
+
 
 
 def predict_from_files(candidates_file: object, drugs_file: object, target_file: object, model_file: object) -> object:
@@ -132,3 +141,14 @@ def get_top_n(arr: object, n: int) -> object:
     top_labels = list(arr_df[:n].index)
     top_probs = list(arr_df[:n]['Probabilities'])
     return top_labels, top_probs
+
+
+if __name__ == '__main__':
+    print('Hello World! - Inference')
+    smilesa = 'CC(=O)C(O)=O'
+    smilesb = 'C[N+](C)(C)CCO'
+    abc = predict_interaction(smilesa, smilesb, model='mlp_train',  directory='models')
+    print('Predictions are: ',abc)
+    top_3 = get_top_n(abc, 3)
+    print('Top 3 predictions are :',top_3)
+
