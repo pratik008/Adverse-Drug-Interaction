@@ -1,2 +1,5 @@
 tensorflow
 rdkit
+pandas
+numpy
+from rdkit.Chem import Draw, MolFromSmiles
