@@ -1,0 +1,2 @@
+CC(N)CC1=CC=CC=C1
+CC(O)CCO

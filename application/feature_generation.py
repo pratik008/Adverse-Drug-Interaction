@@ -4,7 +4,7 @@ from rdkit import Chem
 #import numpy as np
 from collections import Counter
 from gensim.models import word2vec
-from mol2vec_utils import *
+from scripts.mol2vec_utils import *
 
 
 # File to generate numerical features from smiles data and replace

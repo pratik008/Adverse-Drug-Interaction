@@ -1,9 +1,8 @@
 from flask import render_template
 from flask import request
 from flaskapp import app
-import csv
-from inference import *
-from feature_generation import smiles_to_ECFP
+from scripts.inference import *
+from scripts.feature_generation import smiles_to_ECFP
 
 # File that contains all the python processing and the views logic
 #

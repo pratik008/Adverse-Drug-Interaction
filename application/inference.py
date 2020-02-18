@@ -1,5 +1,5 @@
 import tensorflow as tf
-from feature_generation import smiles_to_ECFP
+from scripts.feature_generation import smiles_to_ECFP
 import numpy as np
 import pandas as pd
 import csv

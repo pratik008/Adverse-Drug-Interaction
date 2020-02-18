@@ -1,0 +1,2 @@
+c4ccc(c3ccc(c1ccccc1c2ccccc2)cc3)cc4
+NNc1ccccc1
