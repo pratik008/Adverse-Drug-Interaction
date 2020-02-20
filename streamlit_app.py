@@ -1,9 +1,13 @@
 import streamlit as st
 import csv
+import os
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "Drug-Interaction-Predictor"))
+
 from rdkit.Chem import Draw, MolFromSmiles
 from scripts.inference import Inference
 from scripts.helper import plot_horizonatal_bar_chart
-import os
 
 #Title
 st.title("Deep Drug Interaction")

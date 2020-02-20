@@ -1,5 +1,9 @@
-tensorflow
-#rdkit
-pandas
+gensim
+keras
+lxml
+matplotlib
 numpy
-#from rdkit.Chem import Draw, MolFromSmiles
+pandas
+scikit-learn
+tensorflow
+torch
