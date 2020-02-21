@@ -10,36 +10,70 @@ st.title("Deep Drug Interaction")
 
 #Sidebar
 if st.sidebar.checkbox('How does this work?'):
-    st.sidebar.subheader('Short tutorial')
-    st.sidebar.text('Here is a short tutorial')
+    st.sidebar.subheader('Short Description')
+    st.sidebar.text("Data : 2 million Interactions \n from drugbank.com.")
+    st.sidebar.text("Feature Engineering : Convert \n drug names to SMILES string.")
+    st.sidebar.text("Deep Learning Model : CNN LSTM \n with Attention.")
+    st.sidebar.text("Serving : streamlit app and \n command line.")
+
 if st.sidebar.checkbox('Show Instructions'):
-    st.sidebar.subheader('The instructions')
-    st.sidebar.text('Here are the instructions')
+    st.sidebar.subheader('Instructions')
+    st.sidebar.text("step 1 : Select drug A from candidate \n drug drop down.")
+    st.sidebar.text("step 2 : Select drug B from target \n drug drop down.")
+    st.sidebar.text("step 3 : Click on predict interactions")
+
 if st.sidebar.checkbox('About the project'):
     st.sidebar.subheader('Project created by Pratik Mehta')
-    st.sidebar.text('Contact Details')
+    st.sidebar.text('Github Link : \nhttp://bit.ly/DrugInteractionGithub')
+    st.sidebar.text('Project Slides : \nhttp://bit.ly/DrugInteractionSlides')
+    st.sidebar.text('Contact Email : pratik008@gmail.com')
+    st.sidebar.text('Linkedin : linkedin.com/in/pratik008/')
 
 #Main content
 st.subheader("Welcome to Deep Drug Interaction")
 st.write("Deep Drug Interaction is a deep learning tool designed to predict drug-drug interactions. "
          "Deep drug interactions is designed to help chemists to explore possible drug interactions of new molecules.")
-st.write("More details, can be found in the online slides here : Link")
+st.write("More details, can be found in the online slides here : http://bit.ly/DrugInteractionSlides")
 
 #Tutorail
 st.subheader("How does this work?")
 if st.checkbox('check this box to learn more.'):
     st.subheader('Tutorial')
-    st.text('Here is a quick guide to understand the inner workings.')
+    st.subheader('--------------------------------------------------------------------------------')
+    st.subheader('Dataset - drugbank.com')
+    st.write('2 million interaction pairs for 20,000 drug molecules is available from drugbank.com')
+    st.image(os.path.join('helper_files','Drugbank.png'),width=600)
+    st.subheader('--------------------------------------------------------------------------------')
+    st.subheader('Molecule Structure')
+    st.write('We can use the drug\'s molecular structure for making predictions. There are 47 different interaction types which include 99% of interactions.')
+    st.image(os.path.join('helper_files', 'Structure.png'), width=600)
+    st.subheader('--------------------------------------------------------------------------------')
+    st.subheader('SMILES String')
+    st.write('We can use the drug\'s SMILES representation as a proxy for molecular structure. We append the SMILES string for the 2 molecules - which acts as the feature space (X) and the corresponding interaction is the target (y).')
+    st.image(os.path.join('helper_files', 'SMILES.png'), width=600)
+    st.subheader('--------------------------------------------------------------------------------')
+    st.subheader('ML Pipeline')
+    st.write('Below is the Machine Learning Pipeline used for this project.')
+    st.image(os.path.join('helper_files', 'ML_Pipeline.png'), width=600)
+    st.subheader('--------------------------------------------------------------------------------')
+    st.subheader('Architecture')
+    st.write('A CNN LSTM with Attention architecture is used for this project.')
+    st.image(os.path.join('helper_files', 'Architecture.png'), width=600)
+    st.subheader('End of Tutorial')
+    st.subheader('--------------------------------------------------------------------------------')
 
 #Source code
 st.subheader("Can I check out the source code?")
-st.write("All source code is available at the drug interaction github repo: Link")
+st.write("All source code is available at the drug interaction github repo: http://bit.ly/DrugInteractionGithub")
 
 #Instructions
 st.subheader("I am ready to run the prediction!")
 if st.checkbox("Check this box to read the instructions."):
     st.subheader('Instructions')
     st.write("Here are the instructions to run the prediction.")
+    st.write("Step 1 : Select drug A from candidate drug drop down.")
+    st.write("Step 2 : Select drug B from target drug drop down.")
+    st.write("Step 3 : Click on predict interactions.")
 
 #Read drug list to load
 drug_list = {}
